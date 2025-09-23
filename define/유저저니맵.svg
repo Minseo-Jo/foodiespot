@@ -1,0 +1,220 @@
+<svg width="1200" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .header { font-family: Arial, sans-serif; font-weight: bold; font-size: 14px; fill: #333; }
+      .stage-text { font-family: Arial, sans-serif; font-size: 12px; fill: #666; text-anchor: middle; }
+      .content-text { font-family: Arial, sans-serif; font-size: 10px; fill: #333; }
+      .emotion-high { fill: #4CAF50; }
+      .emotion-medium { fill: #FFC107; }
+      .emotion-low { fill: #F44336; }
+      .stage-box { fill: #E0E0E0; stroke: #999; stroke-width: 1; }
+      .content-box { fill: #F9F9F9; stroke: #CCC; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <!-- 배경 -->
+  <rect width="1200" height="600" fill="white"/>
+
+  <!-- 제목 -->
+  <text x="600" y="30" class="header" text-anchor="middle" font-size="18">회사 주변 맛집 추천 서비스 User Journey Map</text>
+
+  <!-- 단계 헤더 -->
+  <rect x="0" y="50" width="200" height="40" class="stage-box"/>
+  <text x="100" y="75" class="header" text-anchor="middle">단계</text>
+
+  <rect x="200" y="50" width="167" height="40" class="stage-box"/>
+  <text x="283" y="75" class="stage-text">니즈발생</text>
+
+  <rect x="367" y="50" width="167" height="40" class="stage-box"/>
+  <text x="450" y="75" class="stage-text">검색</text>
+
+  <rect x="534" y="50" width="167" height="40" class="stage-box"/>
+  <text x="617" y="75" class="stage-text">평가</text>
+
+  <rect x="701" y="50" width="167" height="40" class="stage-box"/>
+  <text x="784" y="75" class="stage-text">선택</text>
+
+  <rect x="868" y="50" width="167" height="40" class="stage-box"/>
+  <text x="951" y="75" class="stage-text">이용</text>
+
+  <rect x="1035" y="50" width="165" height="40" class="stage-box"/>
+  <text x="1117" y="75" class="stage-text">피드백</text>
+
+  <!-- 행동 섹션 -->
+  <rect x="0" y="90" width="200" height="120" class="stage-box"/>
+  <text x="100" y="155" class="header" text-anchor="middle">행동</text>
+
+  <rect x="200" y="90" width="167" height="120" class="content-box"/>
+  <text x="210" y="110" class="content-text">• 점심시간 확인</text>
+  <text x="210" y="125" class="content-text">• 배고픔 인식</text>
+  <text x="210" y="140" class="content-text">• 예산/시간 제약 고려</text>
+  <text x="210" y="155" class="content-text">• 위치 기반 조건 설정</text>
+  <text x="210" y="170" class="content-text">• 개인 상황별 요구사항</text>
+  <text x="210" y="185" class="content-text">  결정 (혼밥, 동료 등)</text>
+
+  <rect x="367" y="90" width="167" height="120" class="content-box"/>
+  <text x="377" y="110" class="content-text">• 다중 플랫폼 활용</text>
+  <text x="377" y="125" class="content-text">  (네이버지도, 카카오맵,</text>
+  <text x="377" y="140" class="content-text">   배달앱, 인스타그램)</text>
+  <text x="377" y="155" class="content-text">• 거리순/평점순 정렬</text>
+  <text x="377" y="170" class="content-text">• 키워드 중심 검색</text>
+  <text x="377" y="185" class="content-text">• 교차검증 시도</text>
+
+  <rect x="534" y="90" width="167" height="120" class="content-box"/>
+  <text x="544" y="110" class="content-text">• 가격 우선 확인</text>
+  <text x="544" y="125" class="content-text">• 평점과 리뷰 개수 검토</text>
+  <text x="544" y="140" class="content-text">• 특정 키워드 중심 평가</text>
+  <text x="544" y="155" class="content-text">  ('빠름', '대기없음',</text>
+  <text x="544" y="170" class="content-text">   '가성비', '혼밥가능')</text>
+  <text x="544" y="185" class="content-text">• 개인 기준 필터링</text>
+
+  <rect x="701" y="90" width="167" height="120" class="content-box"/>
+  <text x="711" y="110" class="content-text">• 시간 제약으로 빠른 결정</text>
+  <text x="711" y="125" class="content-text">• 안전한 선택 지향</text>
+  <text x="711" y="140" class="content-text">• 가장 가깝고 무난한 곳</text>
+  <text x="711" y="155" class="content-text">• 타협적 의사결정</text>
+  <text x="711" y="170" class="content-text">• 충동적 결정</text>
+  <text x="711" y="185" class="content-text">• 직관적 판단 의존</text>
+
+  <rect x="868" y="90" width="167" height="120" class="content-box"/>
+  <text x="878" y="110" class="content-text">• 실제 상황 확인</text>
+  <text x="878" y="125" class="content-text">• 대기시간 파악</text>
+  <text x="878" y="140" class="content-text">• 메뉴 빠른 선택</text>
+  <text x="878" y="155" class="content-text">• 무난한 메뉴 주문</text>
+  <text x="878" y="170" class="content-text">• 시간 의식적 식사</text>
+  <text x="878" y="185" class="content-text">• 빠른 계산 및 복귀</text>
+
+  <rect x="1035" y="90" width="165" height="120" class="content-box"/>
+  <text x="1045" y="110" class="content-text">• 만족도별 차별 반응</text>
+  <text x="1045" y="125" class="content-text">• 주변 공유</text>
+  <text x="1045" y="140" class="content-text">  (동료, SNS, 리뷰앱)</text>
+  <text x="1045" y="155" class="content-text">• 재방문 의사 결정</text>
+  <text x="1045" y="170" class="content-text">• 경험 기반 학습</text>
+  <text x="1045" y="185" class="content-text">• 단골집 리스트 업데이트</text>
+
+  <!-- 감정 그래프 라인 -->
+  <polyline points="283,250 450,280 617,260 784,240 951,320 1117,340"
+            stroke="#FF6B6B" stroke-width="3" fill="none"/>
+
+  <!-- 감정 포인트 -->
+  <circle cx="283" cy="250" r="8" class="emotion-medium"/>
+  <circle cx="450" cy="280" r="8" class="emotion-low"/>
+  <circle cx="617" cy="260" r="8" class="emotion-low"/>
+  <circle cx="784" cy="240" r="8" class="emotion-medium"/>
+  <circle cx="951" cy="320" r="8" class="emotion-high"/>
+  <circle cx="1117" cy="340" r="8" class="emotion-high"/>
+
+  <!-- 좋은 느낌 섹션 -->
+  <rect x="0" y="360" width="200" height="120" class="stage-box"/>
+  <text x="100" y="425" class="header" text-anchor="middle">좋은 느낌</text>
+
+  <rect x="200" y="360" width="167" height="120" class="content-box"/>
+  <text x="210" y="380" class="content-text">• 휴식과 에너지 충전</text>
+  <text x="210" y="395" class="content-text">  시간에 대한 기대감</text>
+  <text x="210" y="410" class="content-text">• 맛있는 음식에 대한</text>
+  <text x="210" y="425" class="content-text">  설렘</text>
+  <text x="210" y="440" class="content-text">• 새로운 맛집 발견</text>
+  <text x="210" y="455" class="content-text">  가능성</text>
+
+  <rect x="367" y="360" width="167" height="120" class="content-box"/>
+  <text x="377" y="380" class="content-text">• 새로운 맛집 발견시</text>
+  <text x="377" y="395" class="content-text">  기대감 상승</text>
+  <text x="377" y="410" class="content-text">• 높은 평점 발견시</text>
+  <text x="377" y="425" class="content-text">  확신 증가</text>
+  <text x="377" y="440" class="content-text">• 다양한 선택지</text>
+  <text x="377" y="455" class="content-text">  확인시 만족감</text>
+
+  <rect x="534" y="360" width="167" height="120" class="content-box"/>
+  <text x="544" y="380" class="content-text">• 객관적 정보 기반</text>
+  <text x="544" y="395" class="content-text">  합리적 선택시 뿌듯함</text>
+  <text x="544" y="410" class="content-text">• 검증된 정보 발견시</text>
+  <text x="544" y="425" class="content-text">  확신 증가</text>
+  <text x="544" y="440" class="content-text">• 개인 취향 맞는</text>
+  <text x="544" y="455" class="content-text">  리뷰 발견시 기대감</text>
+
+  <rect x="701" y="360" width="167" height="120" class="content-box"/>
+  <text x="711" y="380" class="content-text">• 결정 완료에 따른</text>
+  <text x="711" y="395" class="content-text">  안도감</text>
+  <text x="711" y="410" class="content-text">• 고민 종료로 인한</text>
+  <text x="711" y="425" class="content-text">  후련함</text>
+  <text x="711" y="440" class="content-text">• 선택한 곳에 대한</text>
+  <text x="711" y="455" class="content-text">  기대감</text>
+
+  <rect x="868" y="360" width="167" height="120" class="content-box"/>
+  <text x="878" y="380" class="content-text">• 예상 부합시 만족감과</text>
+  <text x="878" y="395" class="content-text">  뿌듯함</text>
+  <text x="878" y="410" class="content-text">• 빠른 서비스 제공시</text>
+  <text x="878" y="425" class="content-text">  안도감</text>
+  <text x="878" y="440" class="content-text">• 가성비 만족시</text>
+  <text x="878" y="455" class="content-text">  긍정적 평가</text>
+
+  <rect x="1035" y="360" width="165" height="120" class="content-box"/>
+  <text x="1045" y="380" class="content-text">• 좋은 곳 발견시</text>
+  <text x="1045" y="395" class="content-text">  뿌듯함과 자랑</text>
+  <text x="1045" y="410" class="content-text">• 성공적 선택에 대한</text>
+  <text x="1045" y="425" class="content-text">  자신감</text>
+  <text x="1045" y="440" class="content-text">• 단골집 확보에 대한</text>
+  <text x="1045" y="455" class="content-text">  든든함</text>
+
+  <!-- 나쁜 느낌 섹션 -->
+  <rect x="0" y="480" width="200" height="120" class="stage-box"/>
+  <text x="100" y="545" class="header" text-anchor="middle">나쁜 느낌</text>
+
+  <rect x="200" y="480" width="167" height="120" class="content-box"/>
+  <text x="210" y="500" class="content-text">• 제한된 시간으로 인한</text>
+  <text x="210" y="515" class="content-text">  압박감</text>
+  <text x="210" y="530" class="content-text">• 매일 반복되는 선택에</text>
+  <text x="210" y="545" class="content-text">  대한 스트레스</text>
+  <text x="210" y="560" class="content-text">• 예산 부족에 대한 걱정</text>
+  <text x="210" y="575" class="content-text">• 선택권 제한 아쉬움</text>
+
+  <rect x="367" y="480" width="167" height="120" class="content-box"/>
+  <text x="377" y="500" class="content-text">• 검색 시간 과다 소요로</text>
+  <text x="377" y="515" class="content-text">  인한 조급함</text>
+  <text x="377" y="530" class="content-text">• 정보 과부하로 인한</text>
+  <text x="377" y="545" class="content-text">  선택 어려움</text>
+  <text x="377" y="560" class="content-text">• 신뢰성에 대한 의구심</text>
+  <text x="377" y="575" class="content-text">• 검색 결과 부족시 실망</text>
+
+  <rect x="534" y="480" width="167" height="120" class="content-box"/>
+  <text x="544" y="500" class="content-text">• 정보 부족이나 모호함</text>
+  <text x="544" y="515" class="content-text">  으로 인한 불안</text>
+  <text x="544" y="530" class="content-text">• 리뷰 신뢰성에 대한</text>
+  <text x="544" y="545" class="content-text">  의구심</text>
+  <text x="544" y="560" class="content-text">• 실시간 정보 부재로</text>
+  <text x="544" y="575" class="content-text">  인한 우려</text>
+
+  <rect x="701" y="480" width="167" height="120" class="content-box"/>
+  <text x="711" y="500" class="content-text">• 더 좋은 선택 놓친 것에</text>
+  <text x="711" y="515" class="content-text">  대한 아쉬움</text>
+  <text x="711" y="530" class="content-text">• 선택 결과에 대한</text>
+  <text x="711" y="545" class="content-text">  불안감</text>
+  <text x="711" y="560" class="content-text">• 충분히 검토하지 못한</text>
+  <text x="711" y="575" class="content-text">  것에 대한 후회</text>
+
+  <rect x="868" y="480" width="167" height="120" class="content-box"/>
+  <text x="878" y="500" class="content-text">• 대기시간 과다시</text>
+  <text x="878" y="515" class="content-text">  스트레스</text>
+  <text x="878" y="530" class="content-text">• 예상과 다를 때</text>
+  <text x="878" y="545" class="content-text">  실망감</text>
+  <text x="878" y="560" class="content-text">• 서비스 지연시 조급함</text>
+  <text x="878" y="575" class="content-text">• 가격 대비 불만족시 후회</text>
+
+  <rect x="1035" y="480" width="165" height="120" class="content-box"/>
+  <text x="1045" y="500" class="content-text">• 실망시 시간과 돈</text>
+  <text x="1045" y="515" class="content-text">  낭비 아쉬움</text>
+  <text x="1045" y="530" class="content-text">• 맛집 찾기 어려움에</text>
+  <text x="1045" y="545" class="content-text">  대한 회의감</text>
+  <text x="1045" y="560" class="content-text">• 오후 업무에 미치는</text>
+  <text x="1045" y="575" class="content-text">  부정적 영향</text>
+
+  <!-- 범례 -->
+  <circle cx="50" cy="230" r="8" class="emotion-high"/>
+  <text x="70" y="235" class="content-text">높은 만족</text>
+
+  <circle cx="50" cy="250" r="8" class="emotion-medium"/>
+  <text x="70" y="255" class="content-text">보통</text>
+
+  <circle cx="50" y="270" r="8" class="emotion-low"/>
+  <text x="70" y="275" class="content-text">낮은 만족</text>
+</svg>
