@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>홈화면 - 맛집 추천 서비스</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        body {
+            padding-bottom: 80px; /* 하단 네비게이션 공간 */
+        }
+
+        .location-bar {
+            background: var(--white);
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .location-icon {
+            color: var(--primary-blue);
+            font-size: 18px;
+        }
+
+        .location-text {
+            flex: 1;
+            font-size: 14px;
+            color: var(--gray-700);
+        }
+
+        .location-change {
+            color: var(--primary-blue);
+            font-size: 12px;
+            text-decoration: none;
+        }
+
+        .search-section {
+            padding: var(--space-6) var(--space-4);
+            background: var(--white);
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: var(--space-4);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--space-4) var(--space-12) var(--space-4) var(--space-4);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-xl);
+            font-size: 16px;
+            background: var(--gray-50);
+        }
+
+        .search-input:focus {
+            background: var(--white);
+            border-color: var(--primary-blue);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: var(--space-4);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            font-size: 20px;
+        }
+
+        .radius-selector {
+            display: flex;
+            gap: var(--space-2);
+            justify-content: center;
+        }
+
+        .radius-option {
+            padding: var(--space-2) var(--space-4);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-xl);
+            background: var(--white);
+            color: var(--gray-600);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .radius-option.active {
+            background: var(--primary-blue);
+            color: var(--white);
+            border-color: var(--primary-blue);
+        }
+
+        .recommendations-section {
+            padding: 0 var(--space-4);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+            padding: var(--space-4) 0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .see-more {
+            color: var(--primary-blue);
+            font-size: 12px;
+            text-decoration: none;
+        }
+
+        .restaurant-cards {
+            display: flex;
+            gap: var(--space-4);
+            overflow-x: auto;
+            padding-bottom: var(--space-2);
+            scroll-snap-type: x mandatory;
+        }
+
+        .restaurant-card {
+            flex: 0 0 280px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            scroll-snap-align: start;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .restaurant-image {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            background: var(--gray-200);
+        }
+
+        .restaurant-info {
+            padding: var(--space-4);
+        }
+
+        .restaurant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-2);
+        }
+
+        .restaurant-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .restaurant-category {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .restaurant-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .distance {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .quick-actions {
+            padding: var(--space-4);
+            background: var(--white);
+            margin-top: var(--space-6);
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3);
+        }
+
+        .quick-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-4);
+            background: var(--gray-50);
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            color: var(--gray-700);
+            transition: all 0.2s ease;
+        }
+
+        .quick-action:hover {
+            background: var(--primary-blue-light);
+            color: var(--primary-blue-dark);
+        }
+
+        .quick-action-icon {
+            font-size: 24px;
+            margin-bottom: var(--space-2);
+        }
+
+        .quick-action-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* 스크롤바 스타일 */
+        .restaurant-cards::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .restaurant-cards::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: 2px;
+        }
+
+        .restaurant-cards::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 2px;
+        }
+
+        .restaurant-cards::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-400);
+        }
+
+        /* 빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-8);
+            color: var(--gray-500);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-4);
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 로딩 상태 */
+        .loading-card {
+            flex: 0 0 280px;
+        }
+
+        .loading-image {
+            width: 100%;
+            height: 140px;
+        }
+
+        .loading-text {
+            height: 16px;
+            margin-bottom: var(--space-2);
+        }
+
+        .loading-text.short {
+            width: 60%;
+        }
+    </style>
+</head>
+<body>
+    <!-- 상단 위치 바 -->
+    <div class="location-bar">
+        <span class="location-icon">📍</span>
+        <span class="location-text" id="currentLocation">위치를 가져오는 중...</span>
+        <a href="#" class="location-change" onclick="changeLocation()">변경</a>
+    </div>
+
+    <!-- 검색 섹션 -->
+    <div class="search-section">
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="식당, 메뉴를 검색해보세요">
+            <span class="search-icon">🔍</span>
+        </div>
+
+        <div class="radius-selector">
+            <button class="radius-option" data-radius="300">300m</button>
+            <button class="radius-option active" data-radius="500">500m</button>
+            <button class="radius-option" data-radius="1000">1km</button>
+            <button class="radius-option" data-radius="2000">2km</button>
+        </div>
+    </div>
+
+    <!-- 개인화 추천 섹션 -->
+    <div class="recommendations-section">
+        <div class="section-header">
+            <h2 class="section-title">내 취향 맞춤 추천</h2>
+            <a href="#" class="see-more">더보기</a>
+        </div>
+
+        <div class="restaurant-cards" id="recommendationCards">
+            <!-- 로딩 카드들 -->
+            <div class="loading-card card skeleton">
+                <div class="loading-image skeleton"></div>
+                <div class="restaurant-info">
+                    <div class="loading-text skeleton"></div>
+                    <div class="loading-text skeleton short"></div>
+                </div>
+            </div>
+            <div class="loading-card card skeleton">
+                <div class="loading-image skeleton"></div>
+                <div class="restaurant-info">
+                    <div class="loading-text skeleton"></div>
+                    <div class="loading-text skeleton short"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 인기 맛집 섹션 -->
+    <div class="recommendations-section">
+        <div class="section-header">
+            <h2 class="section-title">인근 인기 맛집</h2>
+            <a href="#" class="see-more">더보기</a>
+        </div>
+
+        <div class="restaurant-cards" id="popularCards">
+            <!-- JavaScript로 동적 생성 -->
+        </div>
+    </div>
+
+    <!-- 빠른 액션 -->
+    <div class="quick-actions">
+        <h3 class="section-title mb-4">빠른 액션</h3>
+        <div class="quick-actions-grid">
+            <a href="#" class="quick-action" onclick="Utils.navigateTo('09-개인분석')">
+                <div class="quick-action-icon">📊</div>
+                <div class="quick-action-label">내 분석</div>
+            </a>
+            <a href="#" class="quick-action" onclick="Utils.navigateTo('06-주문상태')">
+                <div class="quick-action-icon">🍽️</div>
+                <div class="quick-action-label">주문 상태</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 하단 네비게이션 -->
+    <div class="bottom-nav">
+        <div class="bottom-nav-content">
+            <a href="#" class="bottom-nav-item active">
+                <div class="bottom-nav-icon">🏠</div>
+                <div class="bottom-nav-label">홈</div>
+            </a>
+            <a href="#" class="bottom-nav-item" onclick="performSearch()">
+                <div class="bottom-nav-icon">🔍</div>
+                <div class="bottom-nav-label">검색</div>
+            </a>
+            <a href="#" class="bottom-nav-item" onclick="Utils.navigateTo('06-주문상태')">
+                <div class="bottom-nav-icon">🍽️</div>
+                <div class="bottom-nav-label">주문</div>
+            </a>
+            <a href="#" class="bottom-nav-item" onclick="Utils.navigateTo('09-개인분석')">
+                <div class="bottom-nav-icon">👤</div>
+                <div class="bottom-nav-label">내 정보</div>
+            </a>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        // 페이지 초기화
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializePage();
+        });
+
+        // 페이지 초기화 함수
+        async function initializePage() {
+            try {
+                // 위치 정보 가져오기
+                await getCurrentLocation();
+
+                // 추천 식당 로드
+                await loadRecommendations();
+
+                // 인기 식당 로드
+                await loadPopularRestaurants();
+
+            } catch (error) {
+                console.error('페이지 초기화 오류:', error);
+                Utils.showToast('데이터를 불러오는 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // 현재 위치 가져오기
+        async function getCurrentLocation() {
+            const locationElement = document.getElementById('currentLocation');
+
+            try {
+                const location = await LocationService.getCurrentLocation();
+                // 실제로는 역지오코딩 API 사용
+                locationElement.textContent = '강남구 테헤란로 (현재 위치)';
+            } catch (error) {
+                locationElement.textContent = '위치 정보 없음 (수동 설정 가능)';
+                Utils.showToast(error.message, 'warning');
+            }
+        }
+
+        // 추천 식당 로드
+        async function loadRecommendations() {
+            const container = document.getElementById('recommendationCards');
+
+            try {
+                const restaurants = await DataService.searchRestaurants('', AppState.currentLocation, AppState.searchRadius);
+
+                if (restaurants.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🍽️</div>
+                            <div class="empty-state-text">추천할 맛집이 없습니다.<br>검색 반경을 넓혀보세요.</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = restaurants.map(restaurant => createRestaurantCard(restaurant)).join('');
+
+                // 카드 클릭 이벤트 추가
+                container.querySelectorAll('.restaurant-card').forEach((card, index) => {
+                    card.addEventListener('click', () => {
+                        AppState.selectedRestaurant = restaurants[index];
+                        Utils.session.set('selectedRestaurant', restaurants[index]);
+                        Utils.navigateTo('03-식당상세');
+                    });
+                });
+
+            } catch (error) {
+                console.error('추천 식당 로드 오류:', error);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <div class="empty-state-text">데이터를 불러올 수 없습니다.</div>
+                    </div>
+                `;
+            }
+        }
+
+        // 인기 식당 로드 (다른 정렬)
+        async function loadPopularRestaurants() {
+            const container = document.getElementById('popularCards');
+
+            try {
+                const restaurants = await DataService.searchRestaurants('', AppState.currentLocation, AppState.searchRadius);
+                const popularRestaurants = restaurants.sort((a, b) => b.rating - a.rating);
+
+                container.innerHTML = popularRestaurants.map(restaurant => createRestaurantCard(restaurant)).join('');
+
+                // 카드 클릭 이벤트 추가
+                container.querySelectorAll('.restaurant-card').forEach((card, index) => {
+                    card.addEventListener('click', () => {
+                        AppState.selectedRestaurant = popularRestaurants[index];
+                        Utils.session.set('selectedRestaurant', popularRestaurants[index]);
+                        Utils.navigateTo('03-식당상세');
+                    });
+                });
+
+            } catch (error) {
+                console.error('인기 식당 로드 오류:', error);
+            }
+        }
+
+        // 식당 카드 생성
+        function createRestaurantCard(restaurant) {
+            const waitTimeClass = Utils.getWaitTimeClass(restaurant.waitTime);
+            const valueScoreClass = Utils.getValueScoreClass(restaurant.valueScore);
+
+            return `
+                <div class="restaurant-card touchable" data-restaurant-id="${restaurant.id}">
+                    <img src="${restaurant.image}" alt="${restaurant.name}" class="restaurant-image">
+                    <div class="restaurant-info">
+                        <div class="restaurant-header">
+                            <div>
+                                <div class="restaurant-name">${restaurant.name}</div>
+                                <div class="restaurant-category">${restaurant.category}</div>
+                            </div>
+                            <div class="value-score ${valueScoreClass}">${restaurant.valueScore.toFixed(1)}</div>
+                        </div>
+
+                        <div class="restaurant-metrics">
+                            <div class="metric-row">
+                                <div class="rating">
+                                    <span class="rating-star filled">★</span>
+                                    <span class="rating-score">${restaurant.rating.toFixed(1)}</span>
+                                    <span class="rating-count">(${restaurant.reviewCount})</span>
+                                </div>
+                                <div class="wait-time ${waitTimeClass}">
+                                    ${restaurant.waitTime === 0 ? '대기없음' : restaurant.waitTime + '분 대기'}
+                                </div>
+                            </div>
+
+                            <div class="metric-row">
+                                <div class="distance">${Utils.formatDistance(restaurant.distance)}</div>
+                                <div class="price-range">
+                                    <span class="price-symbol ${restaurant.priceRange}"></span>
+                                    평균 ${Utils.formatPrice(restaurant.averagePrice)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 검색 수행
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+
+            if (query) {
+                Utils.session.set('searchQuery', query);
+                Utils.session.set('searchRadius', AppState.searchRadius);
+                Utils.navigateTo('02-검색결과');
+            } else {
+                Utils.navigateTo('02-검색결과');
+            }
+        }
+
+        // 위치 변경
+        function changeLocation() {
+            Utils.showToast('위치 변경 기능은 추후 구현 예정입니다.', 'info');
+        }
+
+        // 검색창 엔터 키 처리
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // 반경 선택 처리
+        document.querySelectorAll('.radius-option').forEach(option => {
+            option.addEventListener('click', () => {
+                // 활성 상태 변경
+                document.querySelectorAll('.radius-option').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+
+                // 앱 상태 업데이트
+                AppState.searchRadius = parseInt(option.dataset.radius);
+
+                // 추천 식당 다시 로드
+                loadRecommendations();
+                loadPopularRestaurants();
+            });
+        });
+
+        // 검색창 포커스/블러 효과
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.style.transform = 'scale(1.02)';
+        });
+
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.style.transform = 'scale(1)';
+        });
+
+        // 스크롤 시 위치 바 숨김/표시
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', () => {
+            const locationBar = document.querySelector('.location-bar');
+            const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            if (currentScrollTop > lastScrollTop && currentScrollTop > 50) {
+                // 아래로 스크롤
+                locationBar.style.transform = 'translateY(-100%)';
+            } else {
+                // 위로 스크롤
+                locationBar.style.transform = 'translateY(0)';
+            }
+
+            lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
+        });
+    </script>
+</body>
+</html>

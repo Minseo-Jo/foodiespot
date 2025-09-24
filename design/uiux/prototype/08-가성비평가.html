@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가성비 평가 - 푸디스팟</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        /* 가성비평가 전용 스타일 */
+        .evaluation-container {
+            padding: 20px 0;
+        }
+
+        .progress-header {
+            position: sticky;
+            top: 60px;
+            background: #FFFFFF;
+            z-index: 10;
+            padding: 16px 0;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #E5E7EB;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563EB 0%, #3B82F6 100%);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .progress-step {
+            color: #2563EB;
+            font-weight: 600;
+        }
+
+        .progress-title {
+            color: #6B7280;
+        }
+
+        .evaluation-step {
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .evaluation-step.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .step-header {
+            text-align: center;
+            margin: 32px 0;
+        }
+
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+
+        .step-icon.price {
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+        }
+
+        .step-icon.portion {
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+        }
+
+        .step-icon.taste {
+            background: linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%);
+        }
+
+        .step-icon.service {
+            background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+        }
+
+        .step-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .step-description {
+            font-size: 16px;
+            color: #6B7280;
+        }
+
+        .rating-interface {
+            margin: 32px 0;
+        }
+
+        .score-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 24px 0;
+        }
+
+        .score-button {
+            flex: 1;
+            padding: 16px 8px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            background: #FFFFFF;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .score-button:hover {
+            border-color: #2563EB;
+            transform: translateY(-2px);
+        }
+
+        .score-button.selected {
+            border-color: #2563EB;
+            background: #EEF2FF;
+        }
+
+        .score-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2563EB;
+            margin-bottom: 4px;
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+
+        .score-button.selected .score-label {
+            color: #2563EB;
+        }
+
+        .score-descriptions {
+            display: flex;
+            justify-content: space-between;
+            margin: 16px 0;
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+
+        .expectation-compare {
+            margin: 24px 0;
+            padding: 20px;
+            background: #F9FAFB;
+            border-radius: 12px;
+        }
+
+        .compare-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .compare-options {
+            display: flex;
+            gap: 12px;
+        }
+
+        .compare-option {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            background: #FFFFFF;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .compare-option:hover {
+            border-color: #2563EB;
+        }
+
+        .compare-option.selected {
+            border-color: #2563EB;
+            background: #EEF2FF;
+            color: #2563EB;
+        }
+
+        .compare-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .compare-text {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .comment-section {
+            margin: 24px 0;
+        }
+
+        .comment-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 12px;
+        }
+
+        .quick-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .tag-button {
+            padding: 8px 16px;
+            border: 1px solid #D1D5DB;
+            border-radius: 20px;
+            background: #FFFFFF;
+            font-size: 14px;
+            color: #6B7280;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tag-button:hover {
+            border-color: #2563EB;
+            color: #2563EB;
+        }
+
+        .tag-button.selected {
+            border-color: #2563EB;
+            background: #2563EB;
+            color: #FFFFFF;
+        }
+
+        .comment-input {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px 16px;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .step-navigation {
+            display: flex;
+            gap: 12px;
+            margin: 32px 0;
+            position: sticky;
+            bottom: 80px;
+            background: #FFFFFF;
+            padding: 16px 0;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .btn-prev {
+            flex: 1;
+            padding: 14px 24px;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            background: #FFFFFF;
+            color: #6B7280;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-prev:hover:not(:disabled) {
+            border-color: #6B7280;
+            color: #374151;
+        }
+
+        .btn-prev:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-next {
+            flex: 2;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            background: #2563EB;
+            color: #FFFFFF;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            background: #1D4ED8;
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-summary {
+            text-align: center;
+            margin: 32px 0;
+        }
+
+        .personal-score {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scoreReveal 0.8s ease-out;
+        }
+
+        @keyframes scoreReveal {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .personal-score-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .score-explanation {
+            font-size: 16px;
+            color: #6B7280;
+            margin: 16px 0;
+        }
+
+        .factor-breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .factor-result {
+            text-align: center;
+            padding: 16px;
+            background: #F9FAFB;
+            border-radius: 8px;
+        }
+
+        .factor-result-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .factor-result-score {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .factor-result-label {
+            font-size: 12px;
+            color: #6B7280;
+        }
+
+        .insight-message {
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 24px 0;
+        }
+
+        .insight-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1E40AF;
+            margin-bottom: 8px;
+        }
+
+        .insight-text {
+            font-size: 14px;
+            color: #1E3A8A;
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <button class="btn-ghost back-button" aria-label="뒤로가기">
+                    <span style="font-size: 18px;">←</span>
+                </button>
+                <h1 class="navbar-title">가성비 평가</h1>
+                <div style="width: 44px;"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 진행 상황 -->
+    <div class="progress-header">
+        <div class="container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span class="progress-step" id="progressStep">1/4단계</span>
+                <span class="progress-title" id="progressTitle">가격 평가</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="container evaluation-container">
+        <!-- 1단계: 가격 평가 -->
+        <div class="evaluation-step active" id="step1">
+            <div class="step-header">
+                <div class="step-icon price">💰</div>
+                <h2 class="step-title">가격은 어떠셨나요?</h2>
+                <p class="step-description">지불한 금액 대비 만족도를 평가해주세요</p>
+            </div>
+
+            <div class="rating-interface">
+                <div class="score-buttons" id="priceScore">
+                    <button class="score-button" data-score="1">
+                        <div class="score-number">1</div>
+                        <div class="score-label">비쌈</div>
+                    </button>
+                    <button class="score-button" data-score="2">
+                        <div class="score-number">2</div>
+                        <div class="score-label">약간 비쌌</div>
+                    </button>
+                    <button class="score-button" data-score="3">
+                        <div class="score-number">3</div>
+                        <div class="score-label">적당</div>
+                    </button>
+                    <button class="score-button" data-score="4">
+                        <div class="score-number">4</div>
+                        <div class="score-label">저렴</div>
+                    </button>
+                    <button class="score-button" data-score="5">
+                        <div class="score-number">5</div>
+                        <div class="score-label">매우 저렴</div>
+                    </button>
+                </div>
+
+                <div class="expectation-compare">
+                    <h3 class="compare-title">예상했던 가격과 비교하면?</h3>
+                    <div class="compare-options" id="priceExpectation">
+                        <button class="compare-option" data-compare="higher">
+                            <div class="compare-icon">📈</div>
+                            <div class="compare-text">예상보다 비쌌</div>
+                        </button>
+                        <button class="compare-option" data-compare="same">
+                            <div class="compare-icon">👍</div>
+                            <div class="compare-text">예상과 같음</div>
+                        </button>
+                        <button class="compare-option" data-compare="lower">
+                            <div class="compare-icon">📉</div>
+                            <div class="compare-text">예상보다 저렴</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2단계: 양 평가 -->
+        <div class="evaluation-step" id="step2">
+            <div class="step-header">
+                <div class="step-icon portion">🍽️</div>
+                <h2 class="step-title">양은 충분했나요?</h2>
+                <p class="step-description">음식의 양과 포만감을 평가해주세요</p>
+            </div>
+
+            <div class="rating-interface">
+                <div class="score-buttons" id="portionScore">
+                    <button class="score-button" data-score="1">
+                        <div class="score-number">1</div>
+                        <div class="score-label">너무 적음</div>
+                    </button>
+                    <button class="score-button" data-score="2">
+                        <div class="score-number">2</div>
+                        <div class="score-label">적음</div>
+                    </button>
+                    <button class="score-button" data-score="3">
+                        <div class="score-number">3</div>
+                        <div class="score-label">적당</div>
+                    </button>
+                    <button class="score-button" data-score="4">
+                        <div class="score-number">4</div>
+                        <div class="score-label">넉넉</div>
+                    </button>
+                    <button class="score-button" data-score="5">
+                        <div class="score-number">5</div>
+                        <div class="score-label">매우 넉넉</div>
+                    </button>
+                </div>
+
+                <div class="expectation-compare">
+                    <h3 class="compare-title">예상했던 양과 비교하면?</h3>
+                    <div class="compare-options" id="portionExpectation">
+                        <button class="compare-option" data-compare="less">
+                            <div class="compare-icon">📉</div>
+                            <div class="compare-text">예상보다 적음</div>
+                        </button>
+                        <button class="compare-option" data-compare="same">
+                            <div class="compare-icon">👍</div>
+                            <div class="compare-text">예상과 같음</div>
+                        </button>
+                        <button class="compare-option" data-compare="more">
+                            <div class="compare-icon">📈</div>
+                            <div class="compare-text">예상보다 많음</div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="comment-section">
+                    <h3 class="comment-title">어떤 점이 인상적이었나요? (선택)</h3>
+                    <div class="quick-tags" id="portionTags">
+                        <button class="tag-button" data-tag="generous">푸짐한 양</button>
+                        <button class="tag-button" data-tag="perfect">딱 적당</button>
+                        <button class="tag-button" data-tag="small">아쉬운 양</button>
+                        <button class="tag-button" data-tag="variety">다양한 구성</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3단계: 맛 평가 -->
+        <div class="evaluation-step" id="step3">
+            <div class="step-header">
+                <div class="step-icon taste">😋</div>
+                <h2 class="step-title">맛은 어떠셨나요?</h2>
+                <p class="step-description">음식의 맛과 품질을 평가해주세요</p>
+            </div>
+
+            <div class="rating-interface">
+                <div class="score-buttons" id="tasteScore">
+                    <button class="score-button" data-score="1">
+                        <div class="score-number">1</div>
+                        <div class="score-label">별로</div>
+                    </button>
+                    <button class="score-button" data-score="2">
+                        <div class="score-number">2</div>
+                        <div class="score-label">아쉬움</div>
+                    </button>
+                    <button class="score-button" data-score="3">
+                        <div class="score-number">3</div>
+                        <div class="score-label">괜찮음</div>
+                    </button>
+                    <button class="score-button" data-score="4">
+                        <div class="score-number">4</div>
+                        <div class="score-label">맛있음</div>
+                    </button>
+                    <button class="score-button" data-score="5">
+                        <div class="score-number">5</div>
+                        <div class="score-label">최고!</div>
+                    </button>
+                </div>
+
+                <div class="comment-section">
+                    <h3 class="comment-title">맛의 특징을 선택해주세요</h3>
+                    <div class="quick-tags" id="tasteTags">
+                        <button class="tag-button" data-tag="fresh">신선함</button>
+                        <button class="tag-button" data-tag="spicy">적당한 매운맛</button>
+                        <button class="tag-button" data-tag="mild">담백함</button>
+                        <button class="tag-button" data-tag="rich">진한 맛</button>
+                        <button class="tag-button" data-tag="balanced">균형잡힌 맛</button>
+                        <button class="tag-button" data-tag="unique">특별한 맛</button>
+                    </div>
+
+                    <textarea class="comment-input" id="tasteComment" placeholder="맛에 대한 자세한 코멘트를 남겨주세요 (선택)"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4단계: 서비스 평가 -->
+        <div class="evaluation-step" id="step4">
+            <div class="step-header">
+                <div class="step-icon service">🤝</div>
+                <h2 class="step-title">서비스는 어떠셨나요?</h2>
+                <p class="step-description">직원의 친절도와 서비스를 평가해주세요</p>
+            </div>
+
+            <div class="rating-interface">
+                <div class="score-buttons" id="serviceScore">
+                    <button class="score-button" data-score="1">
+                        <div class="score-number">1</div>
+                        <div class="score-label">불친절</div>
+                    </button>
+                    <button class="score-button" data-score="2">
+                        <div class="score-number">2</div>
+                        <div class="score-label">아쉬움</div>
+                    </button>
+                    <button class="score-button" data-score="3">
+                        <div class="score-number">3</div>
+                        <div class="score-label">보통</div>
+                    </button>
+                    <button class="score-button" data-score="4">
+                        <div class="score-number">4</div>
+                        <div class="score-label">친절</div>
+                    </button>
+                    <button class="score-button" data-score="5">
+                        <div class="score-number">5</div>
+                        <div class="score-label">매우 친절</div>
+                    </button>
+                </div>
+
+                <div class="comment-section">
+                    <h3 class="comment-title">서비스의 특징을 선택해주세요</h3>
+                    <div class="quick-tags" id="serviceTags">
+                        <button class="tag-button" data-tag="kind">친절함</button>
+                        <button class="tag-button" data-tag="fast">빠른 서빙</button>
+                        <button class="tag-button" data-tag="clean">깔끔한 정리</button>
+                        <button class="tag-button" data-tag="professional">전문적</button>
+                        <button class="tag-button" data-tag="attentive">세심함</button>
+                        <button class="tag-button" data-tag="warm">따뜻한 응대</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5단계: 완료 및 결과 -->
+        <div class="evaluation-step" id="step5">
+            <div class="completion-summary">
+                <div class="personal-score">
+                    <div class="personal-score-number" id="finalScore">85</div>
+                </div>
+
+                <h2 class="step-title">개인화 점수가 계산되었어요!</h2>
+                <p class="score-explanation">
+                    여러분의 평가 패턴을 분석하여<br>
+                    더 정확한 추천을 위한 점수예요
+                </p>
+
+                <div class="factor-breakdown">
+                    <div class="factor-result">
+                        <div class="factor-result-icon">💰</div>
+                        <div class="factor-result-score" id="priceResult">4.0</div>
+                        <div class="factor-result-label">가격</div>
+                    </div>
+                    <div class="factor-result">
+                        <div class="factor-result-icon">🍽️</div>
+                        <div class="factor-result-score" id="portionResult">4.5</div>
+                        <div class="factor-result-label">양</div>
+                    </div>
+                    <div class="factor-result">
+                        <div class="factor-result-icon">😋</div>
+                        <div class="factor-result-score" id="tasteResult">4.0</div>
+                        <div class="factor-result-label">맛</div>
+                    </div>
+                    <div class="factor-result">
+                        <div class="factor-result-icon">🤝</div>
+                        <div class="factor-result-score" id="serviceResult">4.2</div>
+                        <div class="factor-result-label">서비스</div>
+                    </div>
+                </div>
+
+                <div class="insight-message">
+                    <h3 class="insight-title">💡 개인화 인사이트</h3>
+                    <p class="insight-text" id="personalInsight">
+                        맛과 가격을 중요하게 생각하시는 편이네요!
+                        비슷한 가격대에서 맛있는 음식점을 우선 추천해드릴게요.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 네비게이션 버튼 -->
+        <div class="step-navigation">
+            <button class="btn-prev" id="prevBtn" disabled>이전</button>
+            <button class="btn-next" id="nextBtn" disabled>다음</button>
+        </div>
+    </main>
+
+    <!-- 하단 네비게이션 -->
+    <nav class="bottom-nav">
+        <a href="01-홈화면.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">홈</span>
+        </a>
+        <a href="02-검색결과.html" class="nav-item">
+            <span class="nav-icon">🔍</span>
+            <span class="nav-label">검색</span>
+        </a>
+        <a href="06-주문상태.html" class="nav-item">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">주문</span>
+        </a>
+        <a href="09-개인분석.html" class="nav-item active">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">내정보</span>
+        </a>
+    </nav>
+
+    <script>
+        // 평가 데이터
+        const evaluationData = {
+            restaurantName: '맛있는 김치찌개',
+            currentStep: 1,
+            totalSteps: 4,
+            scores: {
+                price: { score: 0, expectation: null },
+                portion: { score: 0, expectation: null, tags: [] },
+                taste: { score: 0, tags: [], comment: '' },
+                service: { score: 0, tags: [] }
+            },
+            personalScore: 0,
+            personalInsight: ''
+        };
+
+        // 단계별 설정
+        const stepConfig = {
+            1: { title: '가격 평가', factor: 'price' },
+            2: { title: '양 평가', factor: 'portion' },
+            3: { title: '맛 평가', factor: 'taste' },
+            4: { title: '서비스 평가', factor: 'service' },
+            5: { title: '평가 완료', factor: null }
+        };
+
+        // DOM 요소들
+        const elements = {
+            progressFill: document.getElementById('progressFill'),
+            progressStep: document.getElementById('progressStep'),
+            progressTitle: document.getElementById('progressTitle'),
+            prevBtn: document.getElementById('prevBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            finalScore: document.getElementById('finalScore'),
+            personalInsight: document.getElementById('personalInsight'),
+            priceResult: document.getElementById('priceResult'),
+            portionResult: document.getElementById('portionResult'),
+            tasteResult: document.getElementById('tasteResult'),
+            serviceResult: document.getElementById('serviceResult')
+        };
+
+        // 초기화
+        function init() {
+            loadBasicEvaluation();
+            updateProgress();
+            bindEvents();
+            setupStepEvents();
+        }
+
+        // 기본 평가 데이터 로드
+        function loadBasicEvaluation() {
+            const stored = localStorage.getItem('basicEvaluation');
+            if (stored) {
+                const data = JSON.parse(stored);
+                evaluationData.restaurantName = data.restaurantName || evaluationData.restaurantName;
+            }
+        }
+
+        // 진행 상황 업데이트
+        function updateProgress() {
+            const currentStep = evaluationData.currentStep;
+            const progressPercent = ((currentStep - 1) / evaluationData.totalSteps) * 100;
+
+            elements.progressFill.style.width = progressPercent + '%';
+            elements.progressStep.textContent = `${currentStep}/${evaluationData.totalSteps}단계`;
+
+            if (stepConfig[currentStep]) {
+                elements.progressTitle.textContent = stepConfig[currentStep].title;
+            }
+
+            // 버튼 상태 업데이트
+            elements.prevBtn.disabled = currentStep === 1;
+            elements.nextBtn.disabled = !isCurrentStepValid();
+
+            if (currentStep === evaluationData.totalSteps + 1) {
+                elements.nextBtn.textContent = '홈으로';
+                elements.nextBtn.disabled = false;
+            } else {
+                elements.nextBtn.textContent = currentStep === evaluationData.totalSteps ? '완료' : '다음';
+            }
+        }
+
+        // 현재 단계 유효성 확인
+        function isCurrentStepValid() {
+            const currentStep = evaluationData.currentStep;
+
+            if (currentStep <= evaluationData.totalSteps) {
+                const factor = stepConfig[currentStep].factor;
+                return evaluationData.scores[factor].score > 0;
+            }
+
+            return true;
+        }
+
+        // 단계별 이벤트 설정
+        function setupStepEvents() {
+            // 점수 버튼들
+            document.querySelectorAll('.score-buttons').forEach(container => {
+                container.addEventListener('click', (e) => {
+                    if (e.target.closest('.score-button')) {
+                        const button = e.target.closest('.score-button');
+                        const score = parseInt(button.dataset.score);
+                        const factorId = container.id.replace('Score', '');
+
+                        selectScore(factorId, score, container);
+                    }
+                });
+            });
+
+            // 기대치 비교 버튼들
+            document.querySelectorAll('.compare-options').forEach(container => {
+                container.addEventListener('click', (e) => {
+                    if (e.target.closest('.compare-option')) {
+                        const button = e.target.closest('.compare-option');
+                        const comparison = button.dataset.compare;
+                        const factorId = container.id.replace('Expectation', '');
+
+                        selectExpectation(factorId, comparison, container);
+                    }
+                });
+            });
+
+            // 태그 버튼들
+            document.querySelectorAll('.quick-tags').forEach(container => {
+                container.addEventListener('click', (e) => {
+                    if (e.target.closest('.tag-button')) {
+                        const button = e.target.closest('.tag-button');
+                        const tag = button.dataset.tag;
+                        const factorId = container.id.replace('Tags', '');
+
+                        toggleTag(factorId, tag, button);
+                    }
+                });
+            });
+
+            // 코멘트 입력
+            const tasteComment = document.getElementById('tasteComment');
+            if (tasteComment) {
+                tasteComment.addEventListener('input', (e) => {
+                    evaluationData.scores.taste.comment = e.target.value;
+                });
+            }
+        }
+
+        // 점수 선택
+        function selectScore(factor, score, container) {
+            evaluationData.scores[factor].score = score;
+
+            // UI 업데이트
+            container.querySelectorAll('.score-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            container.querySelector(`[data-score="${score}"]`).classList.add('selected');
+
+            updateProgress();
+        }
+
+        // 기대치 비교 선택
+        function selectExpectation(factor, comparison, container) {
+            evaluationData.scores[factor].expectation = comparison;
+
+            // UI 업데이트
+            container.querySelectorAll('.compare-option').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            container.querySelector(`[data-compare="${comparison}"]`).classList.add('selected');
+        }
+
+        // 태그 토글
+        function toggleTag(factor, tag, button) {
+            const tags = evaluationData.scores[factor].tags;
+            const index = tags.indexOf(tag);
+
+            if (index > -1) {
+                tags.splice(index, 1);
+                button.classList.remove('selected');
+            } else {
+                tags.push(tag);
+                button.classList.add('selected');
+            }
+        }
+
+        // 이벤트 바인딩
+        function bindEvents() {
+            // 이전/다음 버튼
+            elements.prevBtn.addEventListener('click', () => {
+                if (evaluationData.currentStep > 1) {
+                    changeStep(evaluationData.currentStep - 1);
+                }
+            });
+
+            elements.nextBtn.addEventListener('click', () => {
+                if (evaluationData.currentStep <= evaluationData.totalSteps) {
+                    if (evaluationData.currentStep === evaluationData.totalSteps) {
+                        calculatePersonalScore();
+                        changeStep(evaluationData.currentStep + 1);
+                    } else {
+                        changeStep(evaluationData.currentStep + 1);
+                    }
+                } else {
+                    // 완료 후 홈으로
+                    saveEvaluationData();
+                    window.location.href = '01-홈화면.html';
+                }
+            });
+
+            // 뒤로가기
+            document.querySelector('.back-button').addEventListener('click', () => {
+                if (confirm('평가를 중단하시겠습니까?\n지금까지의 내용이 저장되지 않습니다.')) {
+                    window.history.back();
+                }
+            });
+        }
+
+        // 단계 변경
+        function changeStep(newStep) {
+            // 현재 단계 숨기기
+            document.querySelector('.evaluation-step.active').classList.remove('active');
+
+            // 새로운 단계 표시
+            document.getElementById(`step${newStep}`).classList.add('active');
+
+            evaluationData.currentStep = newStep;
+            updateProgress();
+        }
+
+        // 개인화 점수 계산
+        function calculatePersonalScore() {
+            const scores = evaluationData.scores;
+            let totalScore = 0;
+            let weightedSum = 0;
+
+            // 가중치 적용 (맛과 가격을 더 중요하게)
+            const weights = { price: 0.3, portion: 0.2, taste: 0.35, service: 0.15 };
+
+            Object.keys(weights).forEach(factor => {
+                if (scores[factor].score > 0) {
+                    weightedSum += scores[factor].score * weights[factor];
+                    totalScore += weights[factor];
+                }
+            });
+
+            // 0-100 스케일로 변환
+            const personalScore = Math.round((weightedSum / totalScore) * 20);
+            evaluationData.personalScore = personalScore;
+
+            // 개인화 인사이트 생성
+            generatePersonalInsight();
+
+            // UI 업데이트
+            updateResultsUI();
+        }
+
+        // 개인화 인사이트 생성
+        function generatePersonalInsight() {
+            const scores = evaluationData.scores;
+            const insights = [];
+
+            // 가장 중요하게 생각하는 요소 찾기
+            const factorScores = {
+                price: scores.price.score,
+                taste: scores.taste.score,
+                portion: scores.portion.score,
+                service: scores.service.score
+            };
+
+            const topFactor = Object.keys(factorScores).reduce((a, b) =>
+                factorScores[a] > factorScores[b] ? a : b
+            );
+
+            const factorNames = {
+                price: '가격',
+                taste: '맛',
+                portion: '양',
+                service: '서비스'
+            };
+
+            insights.push(`${factorNames[topFactor]}을 가장 중요하게 생각하시는 편이네요!`);
+
+            // 기대치와 실제 비교
+            if (scores.price.expectation === 'lower') {
+                insights.push('가격이 저렴한 곳을 우선 추천해드릴게요.');
+            } else if (scores.taste.score >= 4) {
+                insights.push('맛있는 음식점을 우선 추천해드릴게요.');
+            }
+
+            evaluationData.personalInsight = insights.join(' ');
+        }
+
+        // 결과 UI 업데이트
+        function updateResultsUI() {
+            const scores = evaluationData.scores;
+
+            elements.finalScore.textContent = evaluationData.personalScore;
+            elements.personalInsight.textContent = evaluationData.personalInsight;
+
+            elements.priceResult.textContent = scores.price.score.toFixed(1);
+            elements.portionResult.textContent = scores.portion.score.toFixed(1);
+            elements.tasteResult.textContent = scores.taste.score.toFixed(1);
+            elements.serviceResult.textContent = scores.service.score.toFixed(1);
+        }
+
+        // 평가 데이터 저장
+        function saveEvaluationData() {
+            const completedEvaluation = {
+                restaurantName: evaluationData.restaurantName,
+                timestamp: Date.now(),
+                scores: evaluationData.scores,
+                personalScore: evaluationData.personalScore,
+                personalInsight: evaluationData.personalInsight
+            };
+
+            // 기존 평가 목록에 추가
+            const evaluationHistory = JSON.parse(localStorage.getItem('evaluationHistory') || '[]');
+            evaluationHistory.unshift(completedEvaluation);
+
+            // 최대 50개까지만 저장
+            if (evaluationHistory.length > 50) {
+                evaluationHistory.splice(50);
+            }
+
+            localStorage.setItem('evaluationHistory', JSON.stringify(evaluationHistory));
+
+            // 임시 데이터 정리
+            localStorage.removeItem('basicEvaluation');
+            localStorage.removeItem('completedOrder');
+            localStorage.removeItem('currentOrder');
+
+            alert('평가가 완료되었어요! 더 정확한 맛집 추천을 받을 수 있어요. 🎉');
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', init);
+
+        // 페이지 언로드 시 임시 저장
+        window.addEventListener('beforeunload', () => {
+            if (evaluationData.currentStep > 1) {
+                localStorage.setItem('tempDetailedEvaluation', JSON.stringify(evaluationData));
+            }
+        });
+
+        // 스와이프 제스처 지원 (모바일)
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0 && evaluationData.currentStep < evaluationData.totalSteps) {
+                    // 왼쪽으로 스와이프 = 다음
+                    if (isCurrentStepValid()) {
+                        elements.nextBtn.click();
+                    }
+                } else if (diff < 0 && evaluationData.currentStep > 1) {
+                    // 오른쪽으로 스와이프 = 이전
+                    elements.prevBtn.click();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

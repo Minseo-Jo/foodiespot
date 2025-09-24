@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>식사 완료 - 푸디스팟</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        /* 식사완료 전용 스타일 */
+        .completion-container {
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .completion-icon {
+            width: 120px;
+            height: 120px;
+            margin: 32px auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+            animation: celebration 0.6s ease-out;
+        }
+
+        @keyframes celebration {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .completion-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .completion-subtitle {
+            font-size: 16px;
+            color: #6B7280;
+            margin-bottom: 32px;
+        }
+
+        .order-summary {
+            margin: 24px 0;
+            text-align: left;
+        }
+
+        .restaurant-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .restaurant-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #F3F4F6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 12px;
+        }
+
+        .restaurant-details h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .restaurant-details p {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .time-comparison {
+            display: flex;
+            justify-content: space-between;
+            margin: 24px 0;
+            padding: 20px;
+            background: #F9FAFB;
+            border-radius: 12px;
+        }
+
+        .time-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .time-label {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 8px;
+        }
+
+        .time-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .time-difference {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .time-faster {
+            color: #10B981;
+        }
+
+        .time-slower {
+            color: #F59E0B;
+        }
+
+        .rating-section {
+            margin: 32px 0;
+        }
+
+        .rating-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+        }
+
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .star {
+            width: 48px;
+            height: 48px;
+            font-size: 36px;
+            color: #E5E7EB;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .star.active,
+        .star:hover {
+            color: #F59E0B;
+            transform: scale(1.1);
+        }
+
+        .rating-feedback {
+            margin: 16px 0;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .rating-feedback.show {
+            opacity: 1;
+        }
+
+        .rating-excellent {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .rating-good {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .rating-average {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .rating-poor {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .revisit-question {
+            margin: 32px 0;
+        }
+
+        .revisit-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+        }
+
+        .revisit-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .toggle-option {
+            flex: 1;
+            max-width: 120px;
+            padding: 14px 24px;
+            border-radius: 24px;
+            border: 2px solid #E5E7EB;
+            background: #FFFFFF;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-option.selected {
+            background: #2563EB;
+            border-color: #2563EB;
+            color: #FFFFFF;
+        }
+
+        .toggle-option:hover:not(.selected) {
+            border-color: #2563EB;
+            color: #2563EB;
+        }
+
+        .action-buttons {
+            margin: 40px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-detailed {
+            background: #2563EB;
+            color: #FFFFFF;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-detailed:hover {
+            background: #1D4ED8;
+            transform: translateY(-2px);
+        }
+
+        .btn-later {
+            background: transparent;
+            color: #6B7280;
+            border: 1px solid #D1D5DB;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-later:hover {
+            border-color: #9CA3AF;
+            color: #374151;
+        }
+
+        .motivational-message {
+            margin: 24px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border-radius: 12px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .motivational-message.show {
+            opacity: 1;
+        }
+
+        .motivational-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #92400E;
+            text-align: center;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #F59E0B;
+            animation: confetti-fall 3s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <button class="btn-ghost back-button" aria-label="뒤로가기">
+                    <span style="font-size: 18px;">←</span>
+                </button>
+                <h1 class="navbar-title">식사 완료</h1>
+                <div style="width: 44px;"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="container completion-container">
+        <!-- 완료 아이콘 -->
+        <div class="completion-icon">✨</div>
+
+        <!-- 완료 메시지 -->
+        <h1 class="completion-title">맛있게 드셨나요?</h1>
+        <p class="completion-subtitle">식사를 마친 것을 확인했어요</p>
+
+        <!-- 주문 요약 -->
+        <section class="card order-summary">
+            <div class="restaurant-info">
+                <div class="restaurant-icon">🏪</div>
+                <div class="restaurant-details">
+                    <h3 id="restaurantName">맛있는 김치찌개</h3>
+                    <p id="orderDate">2024년 12월 24일 점심</p>
+                </div>
+            </div>
+
+            <!-- 시간 비교 -->
+            <div class="time-comparison">
+                <div class="time-item">
+                    <div class="time-label">예상 시간</div>
+                    <div class="time-value" id="expectedDuration">30분</div>
+                </div>
+                <div class="time-item">
+                    <div class="time-label">실제 시간</div>
+                    <div class="time-value" id="actualDuration">25분</div>
+                    <div class="time-difference time-faster" id="timeDifference">5분 빨랐어요 👍</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 기본 평가 -->
+        <section class="card rating-section">
+            <h2 class="rating-title">오늘 식사는 어떠셨나요?</h2>
+
+            <div class="star-rating" id="starRating">
+                <span class="star" data-rating="1">⭐</span>
+                <span class="star" data-rating="2">⭐</span>
+                <span class="star" data-rating="3">⭐</span>
+                <span class="star" data-rating="4">⭐</span>
+                <span class="star" data-rating="5">⭐</span>
+            </div>
+
+            <div class="rating-feedback" id="ratingFeedback">
+                평점을 선택해주세요
+            </div>
+        </section>
+
+        <!-- 재방문 의향 -->
+        <section class="card revisit-question">
+            <h2 class="revisit-title">다음에도 또 오고 싶으신가요?</h2>
+
+            <div class="revisit-toggle">
+                <button class="toggle-option" data-revisit="yes" id="revisitYes">
+                    네, 좋아요! 😊
+                </button>
+                <button class="toggle-option" data-revisit="no" id="revisitNo">
+                    글쎄요... 🤔
+                </button>
+            </div>
+        </section>
+
+        <!-- 동기부여 메시지 -->
+        <div class="motivational-message" id="motivationalMessage">
+            <p class="motivational-text">
+                💡 여러분의 솔직한 평가가 더 나은 맛집 추천의 시작이에요!
+            </p>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="action-buttons">
+            <button class="btn-detailed" id="detailedBtn">
+                상세 평가하기 (1분 소요)
+            </button>
+            <button class="btn-later" id="laterBtn">
+                나중에 하기
+            </button>
+        </div>
+    </main>
+
+    <!-- 하단 네비게이션 -->
+    <nav class="bottom-nav">
+        <a href="01-홈화면.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">홈</span>
+        </a>
+        <a href="02-검색결과.html" class="nav-item">
+            <span class="nav-icon">🔍</span>
+            <span class="nav-label">검색</span>
+        </a>
+        <a href="06-주문상태.html" class="nav-item">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">주문</span>
+        </a>
+        <a href="09-개인분석.html" class="nav-item active">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">내정보</span>
+        </a>
+    </nav>
+
+    <script>
+        // 완료된 주문 데이터
+        const completionData = {
+            restaurantName: '맛있는 김치찌개',
+            orderDate: '2024년 12월 24일 점심',
+            expectedDuration: 30,
+            actualDuration: 25,
+            basicRating: 0,
+            revisitIntention: null
+        };
+
+        // 평점별 피드백 메시지
+        const ratingFeedback = {
+            1: { message: '아쉬웠어요. 어떤 점이 불편하셨나요?', class: 'rating-poor' },
+            2: { message: '조금 아쉬웠네요. 개선점을 알려주세요.', class: 'rating-poor' },
+            3: { message: '괜찮았어요. 보통 수준이네요.', class: 'rating-average' },
+            4: { message: '좋았어요! 만족스러운 식사였네요.', class: 'rating-good' },
+            5: { message: '정말 훌륭해요! 완벽한 선택이었어요.', class: 'rating-excellent' }
+        };
+
+        // DOM 요소들
+        const elements = {
+            restaurantName: document.getElementById('restaurantName'),
+            orderDate: document.getElementById('orderDate'),
+            expectedDuration: document.getElementById('expectedDuration'),
+            actualDuration: document.getElementById('actualDuration'),
+            timeDifference: document.getElementById('timeDifference'),
+            starRating: document.getElementById('starRating'),
+            ratingFeedback: document.getElementById('ratingFeedback'),
+            revisitYes: document.getElementById('revisitYes'),
+            revisitNo: document.getElementById('revisitNo'),
+            motivationalMessage: document.getElementById('motivationalMessage'),
+            detailedBtn: document.getElementById('detailedBtn'),
+            laterBtn: document.getElementById('laterBtn')
+        };
+
+        // 초기화
+        function init() {
+            loadCompletionData();
+            updateUI();
+            bindEvents();
+            createConfetti();
+
+            // 동기부여 메시지 지연 표시
+            setTimeout(() => {
+                elements.motivationalMessage.classList.add('show');
+            }, 2000);
+        }
+
+        // 완료 데이터 로드
+        function loadCompletionData() {
+            const stored = localStorage.getItem('completedOrder');
+            if (stored) {
+                const data = JSON.parse(stored);
+                completionData.restaurantName = data.restaurantName || completionData.restaurantName;
+                completionData.expectedDuration = calculateExpectedDuration(data.expectedTime, data.actualTime);
+                completionData.actualDuration = calculateActualDuration(data.actualTime, data.orderTime);
+            }
+        }
+
+        // 예상 소요시간 계산
+        function calculateExpectedDuration(expectedTime, actualTime) {
+            // 실제로는 주문 시간과 예상 시간으로 계산
+            return 30; // 임시값
+        }
+
+        // 실제 소요시간 계산
+        function calculateActualDuration(actualTime, orderTime) {
+            // 실제로는 시간 차이 계산
+            return Math.floor(Math.random() * 10) + 20; // 20-30분 사이 랜덤
+        }
+
+        // UI 업데이트
+        function updateUI() {
+            elements.restaurantName.textContent = completionData.restaurantName;
+            elements.orderDate.textContent = completionData.orderDate;
+            elements.expectedDuration.textContent = completionData.expectedDuration + '분';
+            elements.actualDuration.textContent = completionData.actualDuration + '분';
+
+            updateTimeDifference();
+        }
+
+        // 시간 차이 표시 업데이트
+        function updateTimeDifference() {
+            const diff = completionData.expectedDuration - completionData.actualDuration;
+
+            if (diff > 0) {
+                elements.timeDifference.textContent = `${diff}분 빨랐어요 👍`;
+                elements.timeDifference.className = 'time-difference time-faster';
+            } else if (diff < 0) {
+                elements.timeDifference.textContent = `${Math.abs(diff)}분 늦었어요 ⏰`;
+                elements.timeDifference.className = 'time-difference time-slower';
+            } else {
+                elements.timeDifference.textContent = '정확했어요 ⏰';
+                elements.timeDifference.className = 'time-difference';
+            }
+        }
+
+        // 이벤트 바인딩
+        function bindEvents() {
+            // 별점 평가
+            const stars = elements.starRating.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                star.addEventListener('click', () => {
+                    const rating = parseInt(star.dataset.rating);
+                    updateStarRating(rating);
+                    showRatingFeedback(rating);
+                });
+
+                // 호버 효과
+                star.addEventListener('mouseenter', () => {
+                    const rating = parseInt(star.dataset.rating);
+                    highlightStars(rating);
+                });
+            });
+
+            // 별점 영역에서 마우스 나갔을 때
+            elements.starRating.addEventListener('mouseleave', () => {
+                if (completionData.basicRating > 0) {
+                    highlightStars(completionData.basicRating);
+                } else {
+                    highlightStars(0);
+                }
+            });
+
+            // 재방문 의향
+            elements.revisitYes.addEventListener('click', () => {
+                selectRevisitOption(true);
+            });
+
+            elements.revisitNo.addEventListener('click', () => {
+                selectRevisitOption(false);
+            });
+
+            // 액션 버튼
+            elements.detailedBtn.addEventListener('click', () => {
+                proceedToDetailedEvaluation();
+            });
+
+            elements.laterBtn.addEventListener('click', () => {
+                skipEvaluation();
+            });
+
+            // 뒤로가기
+            document.querySelector('.back-button').addEventListener('click', () => {
+                window.history.back();
+            });
+        }
+
+        // 별점 하이라이트
+        function highlightStars(rating) {
+            const stars = elements.starRating.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        // 별점 평가 업데이트
+        function updateStarRating(rating) {
+            completionData.basicRating = rating;
+            highlightStars(rating);
+        }
+
+        // 평점 피드백 표시
+        function showRatingFeedback(rating) {
+            const feedback = ratingFeedback[rating];
+            elements.ratingFeedback.textContent = feedback.message;
+            elements.ratingFeedback.className = `rating-feedback ${feedback.class} show`;
+
+            // 5점 평가 시 축하 효과
+            if (rating === 5) {
+                createExtraConfetti();
+            }
+        }
+
+        // 재방문 의향 선택
+        function selectRevisitOption(willRevisit) {
+            completionData.revisitIntention = willRevisit;
+
+            elements.revisitYes.classList.toggle('selected', willRevisit);
+            elements.revisitNo.classList.toggle('selected', !willRevisit);
+
+            // 버튼 텍스트 업데이트
+            updateActionButtonText();
+        }
+
+        // 액션 버튼 텍스트 업데이트
+        function updateActionButtonText() {
+            if (completionData.basicRating > 0 && completionData.revisitIntention !== null) {
+                elements.detailedBtn.textContent = '상세 평가로 더 정확한 추천받기!';
+                elements.detailedBtn.style.background = '#10B981';
+            }
+        }
+
+        // 상세 평가로 진행
+        function proceedToDetailedEvaluation() {
+            // 기본 평가 데이터 저장
+            const evaluationData = {
+                restaurantName: completionData.restaurantName,
+                basicRating: completionData.basicRating,
+                revisitIntention: completionData.revisitIntention,
+                timingExperience: {
+                    expected: completionData.expectedDuration,
+                    actual: completionData.actualDuration
+                }
+            };
+
+            localStorage.setItem('basicEvaluation', JSON.stringify(evaluationData));
+            window.location.href = '08-가성비평가.html';
+        }
+
+        // 평가 나중에 하기
+        function skipEvaluation() {
+            // 나중에 평가하도록 알림 설정
+            const reminder = {
+                restaurantName: completionData.restaurantName,
+                timestamp: Date.now(),
+                basicRating: completionData.basicRating,
+                reminderSet: true
+            };
+
+            localStorage.setItem('evaluationReminder', JSON.stringify(reminder));
+
+            alert('나중에 평가 알림이 설정되었어요.\n24시간 후에 다시 알려드릴게요! 📱');
+
+            // 홈으로 이동
+            window.location.href = '01-홈화면.html';
+        }
+
+        // 축하 컨페티 생성
+        function createConfetti() {
+            const colors = ['#F59E0B', '#10B981', '#3B82F6', '#EF4444', '#8B5CF6'];
+
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 3) + 's';
+
+                    document.body.appendChild(confetti);
+
+                    // 애니메이션 완료 후 제거
+                    setTimeout(() => {
+                        if (confetti.parentNode) {
+                            confetti.parentNode.removeChild(confetti);
+                        }
+                    }, 5000);
+                }, i * 200);
+            }
+        }
+
+        // 5점 평가 시 추가 컨페티
+        function createExtraConfetti() {
+            const colors = ['#F59E0B', '#10B981'];
+
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = '8px';
+                    confetti.style.height = '8px';
+
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => {
+                        if (confetti.parentNode) {
+                            confetti.parentNode.removeChild(confetti);
+                        }
+                    }, 3000);
+                }, i * 100);
+            }
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', init);
+
+        // 페이지 언로드 시 기본 평가 데이터 임시 저장
+        window.addEventListener('beforeunload', () => {
+            if (completionData.basicRating > 0 || completionData.revisitIntention !== null) {
+                const tempData = {
+                    ...completionData,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('tempEvaluation', JSON.stringify(tempData));
+            }
+        });
+    </script>
+</body>
+</html>

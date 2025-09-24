@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>식당 상세 - 푸디스팟</title>
+    <link rel="stylesheet" href="common.css">
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <button class="btn-ghost back-button" aria-label="뒤로가기">
+                    <span style="font-size: 18px;">←</span>
+                </button>
+                <h1 class="navbar-title">식당 상세</h1>
+                <button class="btn-ghost" id="shareBtn" aria-label="공유하기">
+                    <span style="font-size: 18px;">↗</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="container">
+        <!-- 식당 이미지 갤러리 -->
+        <section class="restaurant-gallery" role="img" aria-label="식당 이미지">
+            <div class="gallery-main">
+                <img id="mainImage" src="https://picsum.photos/400/300?random=1" alt="식당 대표 이미지">
+                <div class="gallery-indicators">
+                    <span class="indicator active"></span>
+                    <span class="indicator"></span>
+                    <span class="indicator"></span>
+                </div>
+            </div>
+            <div class="gallery-thumbnails">
+                <img src="https://picsum.photos/80/60?random=1" alt="썸네일 1" class="thumbnail active">
+                <img src="https://picsum.photos/80/60?random=2" alt="썸네일 2" class="thumbnail">
+                <img src="https://picsum.photos/80/60?random=3" alt="썸네일 3" class="thumbnail">
+                <span class="thumbnail-more">+2</span>
+            </div>
+        </section>
+
+        <!-- 식당 기본 정보 -->
+        <section class="restaurant-info card">
+            <div class="restaurant-header">
+                <h1 class="heading-1" id="restaurantName">맛있는 김치찌개</h1>
+                <div class="restaurant-meta">
+                    <span class="restaurant-category">한식</span>
+                    <span class="price-range">
+                        <span class="price-symbol affordable"></span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="restaurant-details">
+                <div class="detail-item">
+                    <span class="detail-icon">📍</span>
+                    <span class="detail-text" id="restaurantAddress">서울시 강남구 테헤란로 123</span>
+                    <span class="detail-distance text-gray">120m</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-icon">📞</span>
+                    <a href="tel:02-555-1234" class="detail-text">02-555-1234</a>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-icon">🕒</span>
+                    <span class="detail-text" id="restaurantHours">11:00-21:00</span>
+                    <span class="status-open">영업중</span>
+                </div>
+            </div>
+
+            <p class="restaurant-description" id="restaurantDescription">
+                정통 김치찌개 전문점으로 푸짐한 양과 깊은 맛이 일품입니다.
+            </p>
+        </section>
+
+        <!-- 실시간 대기시간 -->
+        <section class="wait-info card">
+            <div class="wait-header">
+                <h2 class="heading-3">실시간 대기시간</h2>
+                <button class="btn-ghost" id="provideWaitTimeBtn">정보 제공</button>
+            </div>
+            <div class="wait-display">
+                <div class="wait-time no-wait" id="currentWaitTime">
+                    대기 없음
+                </div>
+                <div class="wait-meta">
+                    <span class="text-gray body-small">5분 전 업데이트</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4요소 가성비 점수 -->
+        <section class="value-section card">
+            <div class="value-header">
+                <h2 class="heading-3">가성비 분석</h2>
+                <div class="value-score excellent" id="overallScore">4.5</div>
+            </div>
+
+            <div class="factor-chart">
+                <div class="factor-item">
+                    <div class="factor-icon price">💰</div>
+                    <div class="factor-score" id="priceScore">4.5</div>
+                    <div class="factor-label">가격</div>
+                </div>
+                <div class="factor-item">
+                    <div class="factor-icon portion">🍽️</div>
+                    <div class="factor-score" id="portionScore">4.2</div>
+                    <div class="factor-label">양</div>
+                </div>
+                <div class="factor-item">
+                    <div class="factor-icon taste">😋</div>
+                    <div class="factor-score" id="tasteScore">4.3</div>
+                    <div class="factor-label">맛</div>
+                </div>
+                <div class="factor-item">
+                    <div class="factor-icon service">🙋</div>
+                    <div class="factor-score" id="serviceScore">4.1</div>
+                    <div class="factor-label">서비스</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 리뷰 및 평점 -->
+        <section class="review-section card">
+            <div class="review-header">
+                <h2 class="heading-3">리뷰 및 평점</h2>
+                <button class="btn-ghost" id="allReviewsBtn">전체보기</button>
+            </div>
+
+            <div class="rating-summary">
+                <div class="rating-display">
+                    <span class="rating-large">4.2</span>
+                    <div class="rating">
+                        <span class="rating-star filled">★</span>
+                        <span class="rating-star filled">★</span>
+                        <span class="rating-star filled">★</span>
+                        <span class="rating-star filled">★</span>
+                        <span class="rating-star">★</span>
+                    </div>
+                    <span class="rating-count">(156개 리뷰)</span>
+                </div>
+            </div>
+
+            <div class="recent-reviews" id="recentReviews">
+                <div class="review-item">
+                    <div class="review-user">
+                        <span class="user-name">김**</span>
+                        <div class="rating">
+                            <span class="rating-star filled">★★★★★</span>
+                        </div>
+                        <span class="review-date">2일 전</span>
+                    </div>
+                    <p class="review-text">김치찌개가 정말 맛있어요. 양도 푸짐하고 가격도 착해서 자주 올 것 같아요.</p>
+                </div>
+
+                <div class="review-item">
+                    <div class="review-user">
+                        <span class="user-name">이**</span>
+                        <div class="rating">
+                            <span class="rating-star filled">★★★★☆</span>
+                        </div>
+                        <span class="review-date">1주 전</span>
+                    </div>
+                    <p class="review-text">맛은 좋은데 조금 짜요. 그래도 전체적으로 만족합니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 메뉴 미리보기 -->
+        <section class="menu-preview card">
+            <div class="menu-header">
+                <h2 class="heading-3">메뉴 미리보기</h2>
+                <button class="btn-ghost" id="fullMenuBtn">전체메뉴</button>
+            </div>
+
+            <div class="menu-list" id="previewMenus">
+                <div class="menu-item">
+                    <img src="https://picsum.photos/80/60?random=11" alt="김치찌개" class="menu-image">
+                    <div class="menu-info">
+                        <h3 class="menu-name">김치찌개</h3>
+                        <p class="menu-description">돼지고기와 김치가 듬뿍</p>
+                        <span class="menu-price">8,000원</span>
+                    </div>
+                </div>
+
+                <div class="menu-item">
+                    <img src="https://picsum.photos/80/60?random=12" alt="된장찌개" class="menu-image">
+                    <div class="menu-info">
+                        <h3 class="menu-name">된장찌개</h3>
+                        <p class="menu-description">구수한 된장국물</p>
+                        <span class="menu-price">7,000원</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 액션 버튼 -->
+    <div class="action-bar">
+        <button class="btn-secondary" id="favoriteBtn">
+            <span>♡</span> 즐겨찾기
+        </button>
+        <button class="btn-primary" id="orderBtn">
+            주문하기
+        </button>
+    </div>
+
+    <!-- 대기시간 정보 제공 모달 -->
+    <div id="waitTimeModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="heading-3">대기시간 정보 제공</h3>
+                <button class="modal-close" aria-label="닫기">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="body-medium mb-4">현재 대기시간을 알려주시면 다른 이용자들에게 도움이 됩니다.</p>
+                <div class="wait-time-options">
+                    <button class="wait-option" data-time="0">대기 없음</button>
+                    <button class="wait-option" data-time="5">5분 이하</button>
+                    <button class="wait-option" data-time="10">10분 정도</button>
+                    <button class="wait-option" data-time="15">15분 이상</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        // 페이지 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            initRestaurantDetail();
+        });
+
+        function initRestaurantDetail() {
+            // 세션에서 선택된 식당 정보 가져오기
+            const restaurantId = Utils.session.get('selectedRestaurantId') || 'r1';
+            loadRestaurantData(restaurantId);
+
+            // 이벤트 리스너 설정
+            setupEventListeners();
+        }
+
+        async function loadRestaurantData(restaurantId) {
+            try {
+                // 로딩 상태 표시
+                showLoadingState();
+
+                // 식당 데이터 로드
+                const restaurant = await DataService.getRestaurant(restaurantId);
+                const menus = await DataService.getRestaurantMenus(restaurantId);
+
+                // UI 업데이트
+                updateRestaurantInfo(restaurant);
+                updateMenuPreview(menus);
+
+                // 선택된 식당 정보를 세션에 저장
+                Utils.session.set('selectedRestaurant', restaurant);
+
+            } catch (error) {
+                console.error('Failed to load restaurant data:', error);
+                Utils.showToast('식당 정보를 불러오는데 실패했습니다.', 'error');
+            }
+        }
+
+        function updateRestaurantInfo(restaurant) {
+            // 기본 정보 업데이트
+            document.getElementById('restaurantName').textContent = restaurant.name;
+            document.getElementById('restaurantAddress').textContent = restaurant.address;
+            document.getElementById('restaurantHours').textContent = restaurant.hours;
+            document.getElementById('restaurantDescription').textContent = restaurant.description;
+
+            // 가성비 점수 업데이트
+            document.getElementById('overallScore').textContent = restaurant.valueScore;
+            document.getElementById('overallScore').className = `value-score ${Utils.getValueScoreClass(restaurant.valueScore)}`;
+
+            // 4요소 점수 업데이트
+            document.getElementById('priceScore').textContent = restaurant.factors.price;
+            document.getElementById('portionScore').textContent = restaurant.factors.portion;
+            document.getElementById('tasteScore').textContent = restaurant.factors.taste;
+            document.getElementById('serviceScore').textContent = restaurant.factors.service;
+
+            // 대기시간 업데이트
+            const waitTimeEl = document.getElementById('currentWaitTime');
+            waitTimeEl.textContent = restaurant.waitTime === 0 ? '대기 없음' : `${restaurant.waitTime}분`;
+            waitTimeEl.className = `wait-time ${Utils.getWaitTimeClass(restaurant.waitTime)}`;
+
+            // 별점 업데이트
+            updateRating(restaurant.rating, restaurant.reviewCount);
+        }
+
+        function updateRating(rating, reviewCount) {
+            const stars = document.querySelector('.rating');
+            stars.innerHTML = '';
+
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.className = `rating-star ${i <= rating ? 'filled' : ''}`;
+                star.textContent = '★';
+                stars.appendChild(star);
+            }
+
+            document.querySelector('.rating-large').textContent = rating.toFixed(1);
+            document.querySelector('.rating-count').textContent = `(${reviewCount}개 리뷰)`;
+        }
+
+        function updateMenuPreview(menus) {
+            const previewContainer = document.getElementById('previewMenus');
+            previewContainer.innerHTML = '';
+
+            // 처음 2개 메뉴만 미리보기로 표시
+            const previewMenus = menus.slice(0, 2);
+
+            previewMenus.forEach(menu => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'menu-item';
+                menuItem.innerHTML = `
+                    <img src="${menu.image}" alt="${menu.name}" class="menu-image">
+                    <div class="menu-info">
+                        <h3 class="menu-name">${menu.name}</h3>
+                        <p class="menu-description">${menu.description}</p>
+                        <span class="menu-price">${Utils.formatPrice(menu.price)}</span>
+                    </div>
+                `;
+                previewContainer.appendChild(menuItem);
+            });
+        }
+
+        function setupEventListeners() {
+            // 주문하기 버튼
+            document.getElementById('orderBtn').addEventListener('click', function() {
+                const restaurant = Utils.session.get('selectedRestaurant');
+                if (restaurant) {
+                    Utils.navigateTo('04-메뉴선택');
+                }
+            });
+
+            // 즐겨찾기 버튼
+            document.getElementById('favoriteBtn').addEventListener('click', function() {
+                toggleFavorite();
+            });
+
+            // 공유하기 버튼
+            document.getElementById('shareBtn').addEventListener('click', function() {
+                shareRestaurant();
+            });
+
+            // 대기시간 정보 제공
+            document.getElementById('provideWaitTimeBtn').addEventListener('click', function() {
+                showWaitTimeModal();
+            });
+
+            // 전체 메뉴 보기
+            document.getElementById('fullMenuBtn').addEventListener('click', function() {
+                Utils.navigateTo('04-메뉴선택');
+            });
+
+            // 전체 리뷰 보기
+            document.getElementById('allReviewsBtn').addEventListener('click', function() {
+                Utils.showToast('리뷰 상세 페이지는 준비 중입니다.', 'info');
+            });
+
+            // 이미지 갤러리
+            setupImageGallery();
+
+            // 모달 설정
+            setupWaitTimeModal();
+        }
+
+        function setupImageGallery() {
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            const mainImage = document.getElementById('mainImage');
+            const indicators = document.querySelectorAll('.indicator');
+
+            thumbnails.forEach((thumbnail, index) => {
+                thumbnail.addEventListener('click', function() {
+                    // 썸네일 활성화
+                    thumbnails.forEach(t => t.classList.remove('active'));
+                    thumbnail.classList.add('active');
+
+                    // 인디케이터 활성화
+                    indicators.forEach(i => i.classList.remove('active'));
+                    indicators[index]?.classList.add('active');
+
+                    // 메인 이미지 변경
+                    mainImage.src = thumbnail.src.replace('/80/60', '/400/300');
+                });
+            });
+        }
+
+        function setupWaitTimeModal() {
+            const modal = document.getElementById('waitTimeModal');
+            const closeBtn = modal.querySelector('.modal-close');
+            const waitOptions = modal.querySelectorAll('.wait-option');
+
+            closeBtn.addEventListener('click', function() {
+                hideWaitTimeModal();
+            });
+
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    hideWaitTimeModal();
+                }
+            });
+
+            waitOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const waitTime = parseInt(this.dataset.time);
+                    submitWaitTime(waitTime);
+                    hideWaitTimeModal();
+                });
+            });
+        }
+
+        function showWaitTimeModal() {
+            document.getElementById('waitTimeModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideWaitTimeModal() {
+            document.getElementById('waitTimeModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function submitWaitTime(waitTime) {
+            // 실제로는 서버에 전송
+            const waitTimeEl = document.getElementById('currentWaitTime');
+            waitTimeEl.textContent = waitTime === 0 ? '대기 없음' : `${waitTime}분`;
+            waitTimeEl.className = `wait-time ${Utils.getWaitTimeClass(waitTime)}`;
+
+            Utils.showToast('대기시간 정보가 등록되었습니다. 감사합니다!', 'success');
+        }
+
+        function toggleFavorite() {
+            const btn = document.getElementById('favoriteBtn');
+            const isActive = btn.classList.contains('active');
+
+            if (isActive) {
+                btn.classList.remove('active');
+                btn.innerHTML = '<span>♡</span> 즐겨찾기';
+                Utils.showToast('즐겨찾기에서 제거되었습니다.', 'info');
+            } else {
+                btn.classList.add('active');
+                btn.innerHTML = '<span>♥</span> 즐겨찾기';
+                Utils.showToast('즐겨찾기에 추가되었습니다.', 'success');
+            }
+        }
+
+        function shareRestaurant() {
+            if (navigator.share) {
+                const restaurant = Utils.session.get('selectedRestaurant');
+                navigator.share({
+                    title: restaurant.name,
+                    text: `${restaurant.name} - 가성비 ${restaurant.valueScore}점의 맛집을 찾았어요!`,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                Utils.showToast('링크가 클립보드에 복사되었습니다.', 'success');
+            }
+        }
+
+        function showLoadingState() {
+            // 스켈레톤 UI 구현
+            const skeletonElements = document.querySelectorAll('.restaurant-info, .value-section, .review-section');
+            skeletonElements.forEach(el => {
+                el.style.opacity = '0.5';
+            });
+        }
+    </script>
+
+    <style>
+        /* 식당 상세 페이지 전용 스타일 */
+        .restaurant-gallery {
+            margin-bottom: var(--space-4);
+        }
+
+        .gallery-main {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: var(--space-3);
+        }
+
+        .gallery-main img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-indicators {
+            position: absolute;
+            bottom: var(--space-3);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: var(--space-1);
+        }
+
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.5);
+            transition: background 0.2s ease;
+        }
+
+        .indicator.active {
+            background: var(--white);
+        }
+
+        .gallery-thumbnails {
+            display: flex;
+            gap: var(--space-2);
+            overflow-x: auto;
+            padding-bottom: var(--space-2);
+        }
+
+        .thumbnail {
+            width: 60px;
+            height: 45px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .thumbnail.active {
+            opacity: 1;
+            border: 2px solid var(--primary-blue);
+        }
+
+        .thumbnail-more {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 45px;
+            background: var(--gray-100);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            color: var(--gray-500);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .restaurant-header {
+            margin-bottom: var(--space-4);
+        }
+
+        .restaurant-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-top: var(--space-2);
+        }
+
+        .restaurant-category {
+            padding: var(--space-1) var(--space-3);
+            background: var(--primary-blue-light);
+            color: var(--primary-blue);
+            border-radius: var(--radius-xl);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .restaurant-details {
+            margin-bottom: var(--space-4);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-2);
+        }
+
+        .detail-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .detail-text {
+            flex: 1;
+            color: var(--gray-700);
+            text-decoration: none;
+        }
+
+        .detail-distance {
+            font-size: 12px;
+        }
+
+        .status-open {
+            padding: var(--space-1) var(--space-2);
+            background: var(--success-green);
+            color: var(--white);
+            border-radius: var(--radius-sm);
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .wait-info {
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            border: 1px solid #BAE6FD;
+        }
+
+        .wait-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-3);
+        }
+
+        .wait-display {
+            text-align: center;
+        }
+
+        .wait-meta {
+            margin-top: var(--space-1);
+        }
+
+        .value-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .rating-large {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-right: var(--space-3);
+        }
+
+        .rating-summary {
+            margin-bottom: var(--space-4);
+        }
+
+        .rating-display {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .review-item {
+            padding: var(--space-3);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-3);
+        }
+
+        .review-user {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-2);
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .review-date {
+            color: var(--gray-500);
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        .review-text {
+            color: var(--gray-600);
+            line-height: 1.5;
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        .menu-item {
+            display: flex;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:hover {
+            border-color: var(--primary-blue);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .menu-image {
+            width: 60px;
+            height: 45px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .menu-info {
+            flex: 1;
+        }
+
+        .menu-name {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .menu-description {
+            color: var(--gray-600);
+            font-size: 12px;
+            margin-bottom: var(--space-1);
+        }
+
+        .menu-price {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: var(--space-4);
+            background: var(--white);
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            gap: var(--space-3);
+            z-index: 1000;
+        }
+
+        .action-bar .btn-secondary {
+            flex: 1;
+        }
+
+        .action-bar .btn-primary {
+            flex: 2;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: var(--space-4);
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-5);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--gray-500);
+            cursor: pointer;
+            padding: var(--space-1);
+        }
+
+        .modal-body {
+            padding: var(--space-5);
+        }
+
+        .wait-time-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3);
+        }
+
+        .wait-option {
+            padding: var(--space-4);
+            background: var(--gray-50);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .wait-option:hover {
+            background: var(--primary-blue-light);
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        /* 즐겨찾기 활성 상태 */
+        .btn-secondary.active {
+            background: var(--error-red);
+            color: var(--white);
+            border-color: var(--error-red);
+        }
+
+        /* 하단 여백 추가 (고정 액션바 때문에) */
+        main {
+            padding-bottom: 100px;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주문 상태 - 푸디스팟</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        /* 주문상태 전용 스타일 */
+        .order-status-container {
+            padding: 20px 0;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 24px 0;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            right: 30px;
+            height: 2px;
+            background: #E5E7EB;
+            z-index: 1;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            height: 2px;
+            background: #2563EB;
+            transition: width 0.5s ease;
+            z-index: 2;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 3;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            border: 2px solid #E5E7EB;
+            background: #FFFFFF;
+            color: #6B7280;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            background: #2563EB;
+            border-color: #2563EB;
+            color: #FFFFFF;
+        }
+
+        .step.completed .step-circle {
+            background: #10B981;
+            border-color: #10B981;
+            color: #FFFFFF;
+        }
+
+        .step-label {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #6B7280;
+            text-align: center;
+        }
+
+        .step.active .step-label,
+        .step.completed .step-label {
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .current-status {
+            text-align: center;
+            margin: 32px 0;
+        }
+
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .status-message {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .status-detail {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 24px 0;
+            padding: 16px;
+            background: #F9FAFB;
+            border-radius: 12px;
+        }
+
+        .time-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .time-label {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 4px;
+        }
+
+        .time-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .time-remaining {
+            color: #2563EB;
+        }
+
+        .restaurant-contact {
+            margin: 24px 0;
+        }
+
+        .contact-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #F3F4F6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .contact-details h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .contact-details p {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .btn-call {
+            flex: 1;
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-call:hover {
+            background: #059669;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background: transparent;
+            color: #EF4444;
+            border: 1px solid #EF4444;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .btn-cancel:hover {
+            background: #FEF2F2;
+        }
+
+        .delay-notice {
+            background: #FEF3C7;
+            border: 1px solid #F59E0B;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            display: none;
+        }
+
+        .delay-notice.show {
+            display: block;
+        }
+
+        .delay-icon {
+            font-size: 20px;
+            margin-right: 8px;
+        }
+
+        .delay-message {
+            font-weight: 600;
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+
+        .delay-reason {
+            font-size: 14px;
+            color: #A16207;
+        }
+
+        .auto-refresh-indicator {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: #374151;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .auto-refresh-indicator.show {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <button class="btn-ghost back-button" aria-label="뒤로가기">
+                    <span style="font-size: 18px;">←</span>
+                </button>
+                <h1 class="navbar-title">주문 상태</h1>
+                <div style="width: 44px;"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="container order-status-container">
+        <!-- 진행 단계 -->
+        <section class="card">
+            <div class="progress-steps">
+                <div class="progress-line" id="progressLine"></div>
+
+                <div class="step completed" data-step="1">
+                    <div class="step-circle">✓</div>
+                    <div class="step-label">주문접수</div>
+                </div>
+
+                <div class="step active" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">조리중</div>
+                </div>
+
+                <div class="step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">조리완료</div>
+                </div>
+
+                <div class="step" data-step="4">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">픽업대기</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 현재 상태 -->
+        <section class="card">
+            <div class="current-status">
+                <div class="status-icon" id="statusIcon">🍳</div>
+                <div class="status-message" id="statusMessage">맛있게 조리하고 있어요</div>
+                <div class="status-detail" id="statusDetail">곧 완성될 예정입니다</div>
+            </div>
+        </section>
+
+        <!-- 지연 알림 -->
+        <div class="delay-notice" id="delayNotice">
+            <div style="display: flex; align-items: flex-start;">
+                <span class="delay-icon">⚠️</span>
+                <div>
+                    <div class="delay-message">예상 시간보다 지연되고 있어요</div>
+                    <div class="delay-reason" id="delayReason">주문량이 많아 5분 정도 더 소요될 예정입니다</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 시간 정보 -->
+        <section class="card">
+            <div class="time-info">
+                <div class="time-item">
+                    <div class="time-label">주문 시간</div>
+                    <div class="time-value" id="orderTime">12:35</div>
+                </div>
+                <div class="time-item">
+                    <div class="time-label">예상 완료</div>
+                    <div class="time-value" id="expectedTime">13:05</div>
+                </div>
+                <div class="time-item">
+                    <div class="time-label">남은 시간</div>
+                    <div class="time-value time-remaining" id="remainingTime">12분</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 식당 연락처 -->
+        <section class="card restaurant-contact">
+            <h2 class="heading-3">식당 정보</h2>
+
+            <div class="contact-info">
+                <div class="contact-icon">🏪</div>
+                <div class="contact-details">
+                    <h3 id="restaurantName">맛있는 김치찌개</h3>
+                    <p id="restaurantAddress">서울시 강남구 테헤란로 123 (도보 3분)</p>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-call" id="callBtn">
+                    <span>📞</span>
+                    전화걸기
+                </button>
+                <button class="btn-cancel" id="cancelBtn">
+                    주문취소
+                </button>
+            </div>
+        </section>
+
+        <!-- 주문 내역 -->
+        <section class="card">
+            <h2 class="heading-3">주문 내역</h2>
+            <div id="orderItems">
+                <!-- 주문 아이템들이 표시됩니다 -->
+                <div class="order-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
+                    <div>
+                        <div style="font-weight: 500; margin-bottom: 4px;">김치찌개 + 공기밥</div>
+                        <div style="font-size: 14px; color: #6B7280;">맛있게 끓여주세요</div>
+                    </div>
+                    <div style="font-weight: 600; color: #111827;">8,500원</div>
+                </div>
+                <div class="order-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+                    <div>
+                        <div style="font-weight: 500; margin-bottom: 4px;">계란말이</div>
+                        <div style="font-size: 14px; color: #6B7280;">달지 않게 해주세요</div>
+                    </div>
+                    <div style="font-weight: 600; color: #111827;">4,000원</div>
+                </div>
+            </div>
+
+            <div style="border-top: 2px solid #E5E7EB; padding-top: 16px; margin-top: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 18px; font-weight: 700;">총 결제금액</span>
+                    <span style="font-size: 18px; font-weight: 700; color: #2563EB;" id="totalAmount">12,500원</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 자동 새로고침 표시 -->
+    <div class="auto-refresh-indicator" id="refreshIndicator">
+        새로고침 중...
+    </div>
+
+    <!-- 하단 네비게이션 -->
+    <nav class="bottom-nav">
+        <a href="01-홈화면.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">홈</span>
+        </a>
+        <a href="02-검색결과.html" class="nav-item">
+            <span class="nav-icon">🔍</span>
+            <span class="nav-label">검색</span>
+        </a>
+        <a href="06-주문상태.html" class="nav-item active">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">주문</span>
+        </a>
+        <a href="09-개인분석.html" class="nav-item">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">내정보</span>
+        </a>
+    </nav>
+
+    <script>
+        // 주문 상태 데이터
+        const orderData = {
+            orderId: 'ORD-20241224-001',
+            restaurantName: '맛있는 김치찌개',
+            restaurantAddress: '서울시 강남구 테헤란로 123 (도보 3분)',
+            restaurantPhone: '02-1234-5678',
+            orderTime: '12:35',
+            currentStep: 2,
+            status: {
+                icon: '🍳',
+                message: '맛있게 조리하고 있어요',
+                detail: '곧 완성될 예정입니다'
+            },
+            expectedTime: '13:05',
+            remainingMinutes: 12,
+            isDelayed: false,
+            delayReason: '',
+            items: [
+                { name: '김치찌개 + 공기밥', note: '맛있게 끓여주세요', price: 8500 },
+                { name: '계란말이', note: '달지 않게 해주세요', price: 4000 }
+            ]
+        };
+
+        // 주문 상태별 설정
+        const statusConfig = {
+            1: { icon: '✅', message: '주문이 접수되었어요', detail: '식당에서 확인했습니다' },
+            2: { icon: '🍳', message: '맛있게 조리하고 있어요', detail: '곧 완성될 예정입니다' },
+            3: { icon: '🔔', message: '조리가 완료되었어요', detail: '픽업 준비 중입니다' },
+            4: { icon: '✨', message: '픽업 대기 중이에요', detail: '카운터에서 받아가세요' }
+        };
+
+        // DOM 요소들
+        const elements = {
+            progressLine: document.getElementById('progressLine'),
+            statusIcon: document.getElementById('statusIcon'),
+            statusMessage: document.getElementById('statusMessage'),
+            statusDetail: document.getElementById('statusDetail'),
+            orderTime: document.getElementById('orderTime'),
+            expectedTime: document.getElementById('expectedTime'),
+            remainingTime: document.getElementById('remainingTime'),
+            restaurantName: document.getElementById('restaurantName'),
+            delayNotice: document.getElementById('delayNotice'),
+            delayReason: document.getElementById('delayReason'),
+            refreshIndicator: document.getElementById('refreshIndicator'),
+            callBtn: document.getElementById('callBtn'),
+            cancelBtn: document.getElementById('cancelBtn')
+        };
+
+        // 초기화
+        function init() {
+            loadOrderFromStorage();
+            updateUI();
+            startAutoRefresh();
+            bindEvents();
+        }
+
+        // 로컬 스토리지에서 주문 정보 로드
+        function loadOrderFromStorage() {
+            const storedOrder = localStorage.getItem('currentOrder');
+            if (storedOrder) {
+                const stored = JSON.parse(storedOrder);
+                orderData.restaurantName = stored.restaurantName || orderData.restaurantName;
+                orderData.items = stored.items || orderData.items;
+                orderData.totalAmount = stored.totalAmount || calculateTotal();
+            }
+        }
+
+        // 총액 계산
+        function calculateTotal() {
+            return orderData.items.reduce((sum, item) => sum + item.price, 0);
+        }
+
+        // UI 업데이트
+        function updateUI() {
+            updateProgress();
+            updateStatus();
+            updateTimeInfo();
+            updateRestaurantInfo();
+            updateOrderItems();
+            checkDelay();
+        }
+
+        // 진행 상태 업데이트
+        function updateProgress() {
+            const steps = document.querySelectorAll('.step');
+            const totalSteps = steps.length;
+            const progressWidth = ((orderData.currentStep - 1) / (totalSteps - 1)) * 100;
+
+            elements.progressLine.style.width = progressWidth + '%';
+
+            steps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                step.classList.remove('active', 'completed');
+
+                if (stepNumber < orderData.currentStep) {
+                    step.classList.add('completed');
+                    step.querySelector('.step-circle').textContent = '✓';
+                } else if (stepNumber === orderData.currentStep) {
+                    step.classList.add('active');
+                    step.querySelector('.step-circle').textContent = stepNumber;
+                } else {
+                    step.querySelector('.step-circle').textContent = stepNumber;
+                }
+            });
+        }
+
+        // 상태 정보 업데이트
+        function updateStatus() {
+            const config = statusConfig[orderData.currentStep];
+            elements.statusIcon.textContent = config.icon;
+            elements.statusMessage.textContent = config.message;
+            elements.statusDetail.textContent = config.detail;
+        }
+
+        // 시간 정보 업데이트
+        function updateTimeInfo() {
+            elements.orderTime.textContent = orderData.orderTime;
+            elements.expectedTime.textContent = orderData.expectedTime;
+            elements.remainingTime.textContent = orderData.remainingMinutes + '분';
+
+            // 남은 시간에 따른 색상 변경
+            if (orderData.remainingMinutes <= 5) {
+                elements.remainingTime.style.color = '#EF4444';
+            } else if (orderData.remainingMinutes <= 10) {
+                elements.remainingTime.style.color = '#F59E0B';
+            } else {
+                elements.remainingTime.style.color = '#2563EB';
+            }
+        }
+
+        // 식당 정보 업데이트
+        function updateRestaurantInfo() {
+            elements.restaurantName.textContent = orderData.restaurantName;
+        }
+
+        // 주문 내역 업데이트
+        function updateOrderItems() {
+            const orderItemsContainer = document.getElementById('orderItems');
+            const totalAmountElement = document.getElementById('totalAmount');
+
+            orderItemsContainer.innerHTML = orderData.items.map(item => `
+                <div class="order-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
+                    <div>
+                        <div style="font-weight: 500; margin-bottom: 4px;">${item.name}</div>
+                        ${item.note ? `<div style="font-size: 14px; color: #6B7280;">${item.note}</div>` : ''}
+                    </div>
+                    <div style="font-weight: 600; color: #111827;">${item.price.toLocaleString()}원</div>
+                </div>
+            `).join('');
+
+            totalAmountElement.textContent = calculateTotal().toLocaleString() + '원';
+        }
+
+        // 지연 상태 확인
+        function checkDelay() {
+            if (orderData.isDelayed) {
+                elements.delayNotice.classList.add('show');
+                elements.delayReason.textContent = orderData.delayReason;
+            } else {
+                elements.delayNotice.classList.remove('show');
+            }
+        }
+
+        // 자동 새로고침 시작
+        function startAutoRefresh() {
+            setInterval(() => {
+                showRefreshIndicator();
+                simulateStatusUpdate();
+            }, 30000); // 30초마다
+        }
+
+        // 새로고침 표시
+        function showRefreshIndicator() {
+            elements.refreshIndicator.classList.add('show');
+            setTimeout(() => {
+                elements.refreshIndicator.classList.remove('show');
+            }, 2000);
+        }
+
+        // 상태 업데이트 시뮬레이션
+        function simulateStatusUpdate() {
+            // 실제로는 서버에서 최신 상태를 가져와야 함
+            if (orderData.remainingMinutes > 0) {
+                orderData.remainingMinutes = Math.max(0, orderData.remainingMinutes - 1);
+
+                // 단계 진행 시뮬레이션
+                if (orderData.remainingMinutes <= 8 && orderData.currentStep === 2) {
+                    orderData.currentStep = 3;
+                } else if (orderData.remainingMinutes <= 3 && orderData.currentStep === 3) {
+                    orderData.currentStep = 4;
+                }
+
+                // 지연 시뮬레이션 (랜덤)
+                if (orderData.remainingMinutes > 0 && Math.random() < 0.1) {
+                    orderData.isDelayed = true;
+                    orderData.delayReason = '주문량이 많아 5분 정도 더 소요될 예정입니다';
+                    orderData.remainingMinutes += 5;
+                }
+
+                updateUI();
+
+                // 완료 시 다음 페이지로 이동
+                if (orderData.remainingMinutes === 0 && orderData.currentStep === 4) {
+                    setTimeout(() => {
+                        saveCompletionData();
+                        window.location.href = '07-식사완료.html';
+                    }, 2000);
+                }
+            }
+        }
+
+        // 완료 데이터 저장
+        function saveCompletionData() {
+            const completionData = {
+                orderId: orderData.orderId,
+                restaurantName: orderData.restaurantName,
+                items: orderData.items,
+                totalAmount: calculateTotal(),
+                actualTime: getCurrentTime(),
+                expectedTime: orderData.expectedTime
+            };
+            localStorage.setItem('completedOrder', JSON.stringify(completionData));
+        }
+
+        // 현재 시간 가져오기
+        function getCurrentTime() {
+            const now = new Date();
+            return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        }
+
+        // 이벤트 바인딩
+        function bindEvents() {
+            // 전화걸기
+            elements.callBtn.addEventListener('click', () => {
+                const phoneNumber = orderData.restaurantPhone;
+                if (confirm(`${orderData.restaurantName}에 전화를 걸까요?\n${phoneNumber}`)) {
+                    window.location.href = `tel:${phoneNumber}`;
+                }
+            });
+
+            // 주문 취소
+            elements.cancelBtn.addEventListener('click', () => {
+                if (confirm('주문을 취소하시겠습니까?\n취소 후에는 되돌릴 수 없습니다.')) {
+                    cancelOrder();
+                }
+            });
+
+            // 뒤로가기
+            document.querySelector('.back-button').addEventListener('click', () => {
+                window.history.back();
+            });
+        }
+
+        // 주문 취소
+        function cancelOrder() {
+            // 실제로는 서버에 취소 요청을 보내야 함
+            alert('주문이 취소되었습니다.');
+            localStorage.removeItem('currentOrder');
+            window.location.href = '01-홈화면.html';
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

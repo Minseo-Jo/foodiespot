@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>검색결과 - 맛집 추천 서비스</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        body {
+            padding-bottom: 80px;
+        }
+
+        .search-header {
+            background: var(--white);
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--gray-200);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .search-bar {
+            position: relative;
+            margin-bottom: var(--space-3);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--space-3) var(--space-10) var(--space-3) var(--space-4);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-xl);
+            font-size: 16px;
+            background: var(--gray-50);
+        }
+
+        .search-input:focus {
+            background: var(--white);
+            border-color: var(--primary-blue);
+        }
+
+        .search-back {
+            position: absolute;
+            left: var(--space-3);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-600);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: var(--space-3);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .search-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        .result-count {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .filter-controls {
+            background: var(--white);
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            gap: var(--space-2);
+            overflow-x: auto;
+        }
+
+        .sort-button {
+            flex-shrink: 0;
+            padding: var(--space-2) var(--space-4);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-xl);
+            background: var(--white);
+            color: var(--gray-700);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .sort-button.active {
+            background: var(--primary-blue);
+            color: var(--white);
+            border-color: var(--primary-blue);
+        }
+
+        .filter-chip {
+            flex-shrink: 0;
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-xl);
+            background: var(--white);
+            color: var(--gray-700);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .filter-chip.active {
+            background: var(--food-orange-light);
+            color: var(--food-orange-dark);
+            border-color: var(--food-orange);
+        }
+
+        .filter-chip.active::after {
+            content: '×';
+            margin-left: var(--space-1);
+            font-weight: bold;
+        }
+
+        .results-container {
+            padding: 0 var(--space-4);
+        }
+
+        .restaurant-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+            padding: var(--space-4) 0;
+        }
+
+        .restaurant-item {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .restaurant-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .restaurant-content {
+            display: flex;
+            padding: var(--space-4);
+            gap: var(--space-4);
+        }
+
+        .restaurant-image {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-md);
+            object-fit: cover;
+            background: var(--gray-200);
+        }
+
+        .restaurant-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .restaurant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-2);
+        }
+
+        .restaurant-title {
+            flex: 1;
+        }
+
+        .restaurant-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .restaurant-category {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .restaurant-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+        }
+
+        .metrics-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .distance-info {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .price-info {
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+
+        .view-toggle {
+            position: fixed;
+            bottom: 90px;
+            right: var(--space-4);
+            background: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-full);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: var(--space-16);
+            color: var(--gray-500);
+        }
+
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-4);
+            opacity: 0.5;
+        }
+
+        .no-results-text {
+            font-size: 16px;
+            margin-bottom: var(--space-2);
+        }
+
+        .no-results-suggestion {
+            font-size: 14px;
+            color: var(--gray-400);
+        }
+
+        .loading-item {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: var(--space-4);
+        }
+
+        .loading-content {
+            display: flex;
+            gap: var(--space-4);
+        }
+
+        .loading-image {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-md);
+        }
+
+        .loading-details {
+            flex: 1;
+        }
+
+        .loading-line {
+            height: 16px;
+            margin-bottom: var(--space-2);
+        }
+
+        .loading-line.short {
+            width: 60%;
+        }
+
+        .loading-line.medium {
+            width: 80%;
+        }
+
+        /* 지도 뷰 (추후 구현) */
+        .map-view {
+            height: 400px;
+            background: var(--gray-100);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-500);
+            font-size: 14px;
+        }
+
+        /* 하단 네비게이션 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border-top: 1px solid var(--gray-200);
+            padding: var(--space-2) 0;
+            z-index: 1000;
+        }
+
+        .bottom-nav-content {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-2);
+            text-decoration: none;
+            color: var(--gray-500);
+            transition: color 0.2s ease;
+        }
+
+        .bottom-nav-item.active {
+            color: var(--primary-blue);
+        }
+
+        .bottom-nav-icon {
+            font-size: 20px;
+            margin-bottom: var(--space-1);
+        }
+
+        .bottom-nav-label {
+            font-size: 10px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- 검색 헤더 -->
+    <div class="search-header">
+        <div class="search-bar">
+            <span class="search-back" onclick="Utils.goBack()">←</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="식당, 메뉴를 검색해보세요">
+            <span class="search-clear" onclick="clearSearch()">×</span>
+        </div>
+        <div class="search-summary">
+            <span class="result-count" id="resultCount">검색 중...</span>
+            <span id="searchLocation">강남구 테헤란로 주변</span>
+        </div>
+    </div>
+
+    <!-- 필터 컨트롤 -->
+    <div class="filter-controls">
+        <button class="sort-button active" data-sort="distance">가까운 순</button>
+        <button class="sort-button" data-sort="rating">평점 순</button>
+        <button class="sort-button" data-sort="value">가성비 순</button>
+        <button class="filter-chip" data-filter="korean">한식</button>
+        <button class="filter-chip" data-filter="chinese">중식</button>
+        <button class="filter-chip" data-filter="western">양식</button>
+        <button class="filter-chip" data-filter="no-wait">대기없음</button>
+        <button class="filter-chip" data-filter="affordable">저렴한</button>
+    </div>
+
+    <!-- 결과 컨테이너 -->
+    <div class="results-container">
+        <!-- 리스트 뷰 -->
+        <div class="restaurant-list" id="restaurantList">
+            <!-- 로딩 아이템들 -->
+            <div class="loading-item">
+                <div class="loading-content">
+                    <div class="loading-image skeleton"></div>
+                    <div class="loading-details">
+                        <div class="loading-line skeleton"></div>
+                        <div class="loading-line skeleton short"></div>
+                        <div class="loading-line skeleton medium"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="loading-item">
+                <div class="loading-content">
+                    <div class="loading-image skeleton"></div>
+                    <div class="loading-details">
+                        <div class="loading-line skeleton"></div>
+                        <div class="loading-line skeleton short"></div>
+                        <div class="loading-line skeleton medium"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 지도 뷰 (추후 구현) -->
+        <div class="map-view" id="mapView">
+            <div>지도 뷰는 추후 구현 예정입니다</div>
+        </div>
+    </div>
+
+    <!-- 뷰 전환 버튼 -->
+    <button class="view-toggle" onclick="toggleView()">🗺️</button>
+
+    <!-- 하단 네비게이션 -->
+    <div class="bottom-nav">
+        <div class="bottom-nav-content">
+            <a href="#" class="bottom-nav-item" onclick="Utils.navigateTo('01-홈화면')">
+                <div class="bottom-nav-icon">🏠</div>
+                <div class="bottom-nav-label">홈</div>
+            </a>
+            <a href="#" class="bottom-nav-item active">
+                <div class="bottom-nav-icon">🔍</div>
+                <div class="bottom-nav-label">검색</div>
+            </a>
+            <a href="#" class="bottom-nav-item" onclick="Utils.navigateTo('06-주문상태')">
+                <div class="bottom-nav-icon">🍽️</div>
+                <div class="bottom-nav-label">주문</div>
+            </a>
+            <a href="#" class="bottom-nav-item" onclick="Utils.navigateTo('09-개인분석')">
+                <div class="bottom-nav-icon">👤</div>
+                <div class="bottom-nav-label">내 정보</div>
+            </a>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        let currentSort = 'distance';
+        let activeFilters = new Set();
+        let allRestaurants = [];
+        let currentView = 'list'; // 'list' or 'map'
+
+        // 페이지 초기화
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializePage();
+        });
+
+        async function initializePage() {
+            try {
+                // 세션에서 검색 정보 가져오기
+                const searchQuery = Utils.session.get('searchQuery') || '';
+                const searchRadius = Utils.session.get('searchRadius') || 500;
+
+                // 검색창에 쿼리 설정
+                document.getElementById('searchInput').value = searchQuery;
+
+                // 검색 수행
+                await performSearch(searchQuery, searchRadius);
+
+            } catch (error) {
+                console.error('페이지 초기화 오류:', error);
+                showNoResults('검색 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 검색 수행
+        async function performSearch(query = '', radius = 500) {
+            try {
+                const results = await DataService.searchRestaurants(query, AppState.currentLocation, radius);
+                allRestaurants = results;
+
+                updateResultCount(results.length, query);
+                displayResults(results);
+
+            } catch (error) {
+                console.error('검색 오류:', error);
+                showNoResults('검색 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 결과 카운트 업데이트
+        function updateResultCount(count, query) {
+            const resultCountEl = document.getElementById('resultCount');
+
+            if (query) {
+                resultCountEl.textContent = `'${query}' 검색결과 ${count}개`;
+            } else {
+                resultCountEl.textContent = `주변 맛집 ${count}개`;
+            }
+        }
+
+        // 결과 표시
+        function displayResults(restaurants) {
+            const listContainer = document.getElementById('restaurantList');
+
+            if (restaurants.length === 0) {
+                showNoResults();
+                return;
+            }
+
+            listContainer.innerHTML = restaurants.map(restaurant => createRestaurantItem(restaurant)).join('');
+
+            // 클릭 이벤트 추가
+            listContainer.querySelectorAll('.restaurant-item').forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    AppState.selectedRestaurant = restaurants[index];
+                    Utils.session.set('selectedRestaurant', restaurants[index]);
+                    Utils.navigateTo('03-식당상세');
+                });
+            });
+        }
+
+        // 식당 아이템 생성
+        function createRestaurantItem(restaurant) {
+            const waitTimeClass = Utils.getWaitTimeClass(restaurant.waitTime);
+            const valueScoreClass = Utils.getValueScoreClass(restaurant.valueScore);
+
+            return `
+                <div class="restaurant-item touchable" data-restaurant-id="${restaurant.id}">
+                    <div class="restaurant-content">
+                        <img src="${restaurant.image}" alt="${restaurant.name}" class="restaurant-image">
+                        <div class="restaurant-details">
+                            <div class="restaurant-header">
+                                <div class="restaurant-title">
+                                    <div class="restaurant-name">${restaurant.name}</div>
+                                    <div class="restaurant-category">${restaurant.category}</div>
+                                </div>
+                                <div class="value-score ${valueScoreClass}">${restaurant.valueScore.toFixed(1)}</div>
+                            </div>
+
+                            <div class="restaurant-metrics">
+                                <div class="metrics-row">
+                                    <div class="rating">
+                                        <span class="rating-star filled">★</span>
+                                        <span class="rating-score">${restaurant.rating.toFixed(1)}</span>
+                                        <span class="rating-count">(${restaurant.reviewCount})</span>
+                                    </div>
+                                    <div class="wait-time ${waitTimeClass}">
+                                        ${restaurant.waitTime === 0 ? '대기없음' : restaurant.waitTime + '분 대기'}
+                                    </div>
+                                </div>
+
+                                <div class="metrics-row">
+                                    <div class="distance-info">${Utils.formatDistance(restaurant.distance)}</div>
+                                    <div class="price-info">
+                                        <span class="price-symbol ${restaurant.priceRange}"></span>
+                                        평균 ${Utils.formatPrice(restaurant.averagePrice)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 결과 없음 표시
+        function showNoResults(message = '') {
+            const listContainer = document.getElementById('restaurantList');
+
+            listContainer.innerHTML = `
+                <div class="no-results">
+                    <div class="no-results-icon">😔</div>
+                    <div class="no-results-text">${message || '검색 결과가 없습니다'}</div>
+                    <div class="no-results-suggestion">다른 키워드로 검색해보세요</div>
+                </div>
+            `;
+        }
+
+        // 검색어 지우기
+        function clearSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = '';
+            searchInput.focus();
+        }
+
+        // 뷰 전환
+        function toggleView() {
+            const listView = document.getElementById('restaurantList');
+            const mapView = document.getElementById('mapView');
+            const toggleButton = document.querySelector('.view-toggle');
+
+            if (currentView === 'list') {
+                currentView = 'map';
+                listView.style.display = 'none';
+                mapView.style.display = 'flex';
+                toggleButton.textContent = '📋';
+            } else {
+                currentView = 'list';
+                listView.style.display = 'flex';
+                mapView.style.display = 'none';
+                toggleButton.textContent = '🗺️';
+            }
+        }
+
+        // 정렬 및 필터 이벤트 리스너
+        document.querySelectorAll('.sort-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // 활성 상태 변경
+                document.querySelectorAll('.sort-button').forEach(b => b.classList.remove('active'));
+                button.classList.add('active');
+
+                currentSort = button.dataset.sort;
+                applySortAndFilters();
+            });
+        });
+
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const filter = chip.dataset.filter;
+
+                if (activeFilters.has(filter)) {
+                    activeFilters.delete(filter);
+                    chip.classList.remove('active');
+                } else {
+                    activeFilters.add(filter);
+                    chip.classList.add('active');
+                }
+
+                applySortAndFilters();
+            });
+        });
+
+        // 정렬 및 필터 적용
+        function applySortAndFilters() {
+            let filteredRestaurants = [...allRestaurants];
+
+            // 필터 적용
+            if (activeFilters.size > 0) {
+                filteredRestaurants = filteredRestaurants.filter(restaurant => {
+                    for (let filter of activeFilters) {
+                        switch (filter) {
+                            case 'korean':
+                                if (restaurant.category !== '한식') return false;
+                                break;
+                            case 'chinese':
+                                if (restaurant.category !== '중식') return false;
+                                break;
+                            case 'western':
+                                if (restaurant.category !== '양식') return false;
+                                break;
+                            case 'no-wait':
+                                if (restaurant.waitTime > 0) return false;
+                                break;
+                            case 'affordable':
+                                if (restaurant.priceRange !== 'affordable') return false;
+                                break;
+                        }
+                    }
+                    return true;
+                });
+            }
+
+            // 정렬 적용
+            switch (currentSort) {
+                case 'distance':
+                    filteredRestaurants.sort((a, b) => a.distance - b.distance);
+                    break;
+                case 'rating':
+                    filteredRestaurants.sort((a, b) => b.rating - a.rating);
+                    break;
+                case 'value':
+                    filteredRestaurants.sort((a, b) => b.valueScore - a.valueScore);
+                    break;
+            }
+
+            updateResultCount(filteredRestaurants.length, document.getElementById('searchInput').value);
+            displayResults(filteredRestaurants);
+        }
+
+        // 검색창 이벤트 리스너
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value.trim();
+                performSearch(query, 500);
+            }
+        });
+
+        // 실시간 검색 (디바운스)
+        const debouncedSearch = Utils.debounce((query) => {
+            if (query.length >= 2 || query.length === 0) {
+                performSearch(query, 500);
+            }
+        }, 500);
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            debouncedSearch(query);
+        });
+    </script>
+</body>
+</html>

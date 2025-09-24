@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메뉴 선택 - 푸디스팟</title>
+    <link rel="stylesheet" href="common.css">
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <button class="btn-ghost back-button" aria-label="뒤로가기">
+                    <span style="font-size: 18px;">←</span>
+                </button>
+                <h1 class="navbar-title" id="restaurantName">맛있는 김치찌개</h1>
+                <button class="btn-ghost" id="searchBtn" aria-label="메뉴 검색">
+                    <span style="font-size: 18px;">🔍</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 카테고리 탭 -->
+    <section class="category-tabs">
+        <div class="container">
+            <div class="tabs-container">
+                <button class="tab-item active" data-category="all">전체</button>
+                <button class="tab-item" data-category="main">메인</button>
+                <button class="tab-item" data-category="side">사이드</button>
+                <button class="tab-item" data-category="drink">음료</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="container">
+        <!-- 메뉴 리스트 -->
+        <section class="menu-section" id="menuSection">
+            <!-- 메인 카테고리 -->
+            <div class="menu-category" data-category="main">
+                <h2 class="category-title">메인 메뉴</h2>
+                <div class="menu-grid" id="mainMenus">
+                    <!-- 메뉴 아이템들이 동적으로 추가됩니다 -->
+                </div>
+            </div>
+
+            <!-- 사이드 카테고리 -->
+            <div class="menu-category" data-category="side">
+                <h2 class="category-title">사이드 메뉴</h2>
+                <div class="menu-grid" id="sideMenus">
+                    <!-- 메뉴 아이템들이 동적으로 추가됩니다 -->
+                </div>
+            </div>
+
+            <!-- 음료 카테고리 -->
+            <div class="menu-category" data-category="drink">
+                <h2 class="category-title">음료</h2>
+                <div class="menu-grid" id="drinkMenus">
+                    <!-- 메뉴 아이템들이 동적으로 추가됩니다 -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 장바구니 요약 바 -->
+    <div class="cart-summary" id="cartSummary">
+        <div class="cart-info">
+            <span class="cart-count">0개</span>
+            <span class="cart-total">0원</span>
+        </div>
+        <button class="btn-primary cart-order-btn" id="cartOrderBtn" disabled>
+            주문하기
+        </button>
+    </div>
+
+    <!-- 메뉴 상세 모달 -->
+    <div id="menuModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-close" aria-label="닫기">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="menu-detail">
+                    <img id="modalMenuImage" src="" alt="" class="menu-detail-image">
+                    <div class="menu-detail-info">
+                        <h3 id="modalMenuName" class="heading-3"></h3>
+                        <p id="modalMenuDescription" class="menu-description"></p>
+                        <div class="menu-price-section">
+                            <span id="modalMenuPrice" class="menu-price-large"></span>
+                        </div>
+                    </div>
+
+                    <!-- 옵션 선택 (예시) -->
+                    <div class="menu-options" id="menuOptions" style="display: none;">
+                        <h4 class="option-title">맵기 선택</h4>
+                        <div class="option-group">
+                            <label class="option-item">
+                                <input type="radio" name="spicy" value="mild" checked>
+                                <span>순한맛</span>
+                            </label>
+                            <label class="option-item">
+                                <input type="radio" name="spicy" value="medium">
+                                <span>보통</span>
+                            </label>
+                            <label class="option-item">
+                                <input type="radio" name="spicy" value="hot">
+                                <span>매운맛</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 수량 선택 -->
+                    <div class="quantity-section">
+                        <h4 class="quantity-title">수량</h4>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" id="decreaseBtn">-</button>
+                            <span class="quantity-display" id="quantityDisplay">1</span>
+                            <button class="quantity-btn" id="increaseBtn">+</button>
+                        </div>
+                    </div>
+
+                    <!-- 장바구니 추가 버튼 -->
+                    <div class="modal-actions">
+                        <button class="btn-primary w-full" id="addToCartBtn">
+                            <span id="addToCartText">장바구니에 담기</span>
+                            <span id="addToCartPrice">8,000원</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 장바구니 상세 모달 -->
+    <div id="cartModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="heading-3">장바구니</h3>
+                <button class="modal-close" aria-label="닫기">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="cart-items" id="cartItems">
+                    <!-- 장바구니 아이템들이 동적으로 추가됩니다 -->
+                </div>
+                <div class="cart-total-section">
+                    <div class="total-row">
+                        <span>총 주문금액</span>
+                        <span id="cartTotalPrice" class="total-price">0원</span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary w-full" id="proceedToOrderBtn">
+                        주문하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        // 전역 변수
+        let currentRestaurant = null;
+        let allMenus = [];
+        let cart = [];
+        let currentQuantity = 1;
+        let selectedMenu = null;
+
+        // 페이지 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            initMenuSelection();
+        });
+
+        async function initMenuSelection() {
+            try {
+                // 선택된 식당 정보 가져오기
+                currentRestaurant = Utils.session.get('selectedRestaurant');
+                if (!currentRestaurant) {
+                    Utils.showToast('식당 정보를 찾을 수 없습니다.', 'error');
+                    Utils.goBack();
+                    return;
+                }
+
+                // 식당명 표시
+                document.getElementById('restaurantName').textContent = currentRestaurant.name;
+
+                // 메뉴 데이터 로드
+                allMenus = await DataService.getRestaurantMenus(currentRestaurant.id);
+
+                // 메뉴 표시
+                displayMenus(allMenus);
+
+                // 이벤트 리스너 설정
+                setupEventListeners();
+
+                // 기존 장바구니 복원
+                loadExistingCart();
+
+            } catch (error) {
+                console.error('Failed to load menu data:', error);
+                Utils.showToast('메뉴 정보를 불러오는데 실패했습니다.', 'error');
+            }
+        }
+
+        function displayMenus(menus) {
+            // 카테고리별로 메뉴 그룹화
+            const menusByCategory = groupMenusByCategory(menus);
+
+            // 각 카테고리별로 메뉴 표시
+            Object.keys(menusByCategory).forEach(category => {
+                const container = document.getElementById(`${category}Menus`);
+                if (container) {
+                    container.innerHTML = '';
+                    menusByCategory[category].forEach(menu => {
+                        const menuElement = createMenuElement(menu);
+                        container.appendChild(menuElement);
+                    });
+                }
+            });
+        }
+
+        function groupMenusByCategory(menus) {
+            // 실제 메뉴 데이터에 따라 카테고리를 확장
+            const extendedMenus = menus.map(menu => ({
+                ...menu,
+                category: menu.category || 'main',
+                isPopular: Math.random() > 0.7, // 임의로 인기 메뉴 설정
+                isSoldOut: Math.random() > 0.9  // 임의로 품절 설정
+            }));
+
+            return {
+                main: extendedMenus.filter(m => m.category === 'main' || m.category === '메인'),
+                side: extendedMenus.filter(m => m.category === 'side' || m.category === '사이드'),
+                drink: [] // 음료 데이터가 없으므로 빈 배열
+            };
+        }
+
+        function createMenuElement(menu) {
+            const menuItem = document.createElement('div');
+            menuItem.className = 'menu-item touchable';
+            menuItem.dataset.menuId = menu.id;
+
+            const badges = [];
+            if (menu.isPopular) badges.push('<span class="menu-badge popular">인기</span>');
+            if (menu.isSoldOut) badges.push('<span class="menu-badge sold-out">품절</span>');
+
+            menuItem.innerHTML = `
+                <div class="menu-image-container">
+                    <img src="${menu.image}" alt="${menu.name}" class="menu-image">
+                    ${badges.join('')}
+                </div>
+                <div class="menu-info">
+                    <h3 class="menu-name">${menu.name}</h3>
+                    <p class="menu-description">${menu.description}</p>
+                    <div class="menu-footer">
+                        <span class="menu-price">${Utils.formatPrice(menu.price)}</span>
+                        ${menu.isSoldOut ? '' : `<button class="add-btn" data-menu-id="${menu.id}">+</button>`}
+                    </div>
+                </div>
+            `;
+
+            // 품절이 아닌 경우에만 클릭 이벤트 추가
+            if (!menu.isSoldOut) {
+                menuItem.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('add-btn')) {
+                        e.stopPropagation();
+                        quickAddToCart(menu);
+                    } else {
+                        showMenuModal(menu);
+                    }
+                });
+            } else {
+                menuItem.classList.add('sold-out');
+            }
+
+            return menuItem;
+        }
+
+        function setupEventListeners() {
+            // 카테고리 탭
+            const tabItems = document.querySelectorAll('.tab-item');
+            tabItems.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    switchCategory(category, this);
+                });
+            });
+
+            // 장바구니 요약바 클릭
+            document.getElementById('cartSummary').addEventListener('click', function() {
+                if (cart.length > 0) {
+                    showCartModal();
+                }
+            });
+
+            // 주문하기 버튼
+            document.getElementById('cartOrderBtn').addEventListener('click', function() {
+                proceedToOrder();
+            });
+
+            // 모달 관련 이벤트
+            setupModalEvents();
+        }
+
+        function setupModalEvents() {
+            // 메뉴 상세 모달
+            const menuModal = document.getElementById('menuModal');
+            const cartModal = document.getElementById('cartModal');
+
+            // 모달 닫기
+            const closeButtons = document.querySelectorAll('.modal-close');
+            closeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    hideAllModals();
+                });
+            });
+
+            // 모달 배경 클릭시 닫기
+            [menuModal, cartModal].forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        hideAllModals();
+                    }
+                });
+            });
+
+            // 수량 조절
+            document.getElementById('decreaseBtn').addEventListener('click', function() {
+                if (currentQuantity > 1) {
+                    currentQuantity--;
+                    updateQuantityDisplay();
+                }
+            });
+
+            document.getElementById('increaseBtn').addEventListener('click', function() {
+                if (currentQuantity < 10) {
+                    currentQuantity++;
+                    updateQuantityDisplay();
+                }
+            });
+
+            // 장바구니에 담기
+            document.getElementById('addToCartBtn').addEventListener('click', function() {
+                addToCart(selectedMenu, currentQuantity);
+                hideAllModals();
+            });
+
+            // 주문 진행
+            document.getElementById('proceedToOrderBtn').addEventListener('click', function() {
+                proceedToOrder();
+            });
+        }
+
+        function switchCategory(category, tabElement) {
+            // 탭 활성화 상태 변경
+            document.querySelectorAll('.tab-item').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            tabElement.classList.add('active');
+
+            // 카테고리 섹션 표시/숨김
+            const categories = document.querySelectorAll('.menu-category');
+            if (category === 'all') {
+                categories.forEach(cat => cat.style.display = 'block');
+            } else {
+                categories.forEach(cat => {
+                    cat.style.display = cat.dataset.category === category ? 'block' : 'none';
+                });
+            }
+        }
+
+        function showMenuModal(menu) {
+            selectedMenu = menu;
+            currentQuantity = 1;
+
+            // 메뉴 정보 표시
+            document.getElementById('modalMenuImage').src = menu.image;
+            document.getElementById('modalMenuImage').alt = menu.name;
+            document.getElementById('modalMenuName').textContent = menu.name;
+            document.getElementById('modalMenuDescription').textContent = menu.description;
+            document.getElementById('modalMenuPrice').textContent = Utils.formatPrice(menu.price);
+
+            // 옵션 표시 (김치찌개 등 특정 메뉴에만 표시)
+            const optionsSection = document.getElementById('menuOptions');
+            if (menu.name.includes('찌개') || menu.name.includes('라면')) {
+                optionsSection.style.display = 'block';
+            } else {
+                optionsSection.style.display = 'none';
+            }
+
+            updateQuantityDisplay();
+
+            document.getElementById('menuModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function updateQuantityDisplay() {
+            document.getElementById('quantityDisplay').textContent = currentQuantity;
+
+            if (selectedMenu) {
+                const totalPrice = selectedMenu.price * currentQuantity;
+                document.getElementById('addToCartPrice').textContent = Utils.formatPrice(totalPrice);
+            }
+        }
+
+        function quickAddToCart(menu) {
+            addToCart(menu, 1);
+        }
+
+        function addToCart(menu, quantity) {
+            // 기존 아이템이 있는지 확인
+            const existingItem = cart.find(item => item.id === menu.id);
+
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                // 선택된 옵션 가져오기 (예시)
+                const spicyOption = document.querySelector('input[name="spicy"]:checked')?.value || 'mild';
+
+                cart.push({
+                    ...menu,
+                    quantity: quantity,
+                    options: {
+                        spicy: spicyOption
+                    }
+                });
+            }
+
+            updateCartSummary();
+            saveCartToSession();
+            Utils.showToast(`${menu.name}이 장바구니에 담겼습니다.`, 'success');
+        }
+
+        function updateCartSummary() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            document.querySelector('.cart-count').textContent = `${totalItems}개`;
+            document.querySelector('.cart-total').textContent = Utils.formatPrice(totalPrice);
+
+            const cartOrderBtn = document.getElementById('cartOrderBtn');
+            const cartSummary = document.getElementById('cartSummary');
+
+            if (totalItems > 0) {
+                cartOrderBtn.disabled = false;
+                cartSummary.classList.add('active');
+            } else {
+                cartOrderBtn.disabled = true;
+                cartSummary.classList.remove('active');
+            }
+        }
+
+        function showCartModal() {
+            const cartItemsContainer = document.getElementById('cartItems');
+            cartItemsContainer.innerHTML = '';
+
+            cart.forEach(item => {
+                const cartItem = createCartItemElement(item);
+                cartItemsContainer.appendChild(cartItem);
+            });
+
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('cartTotalPrice').textContent = Utils.formatPrice(totalPrice);
+
+            document.getElementById('cartModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function createCartItemElement(item) {
+            const cartItem = document.createElement('div');
+            cartItem.className = 'cart-item';
+            cartItem.innerHTML = `
+                <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+                <div class="cart-item-info">
+                    <h4 class="cart-item-name">${item.name}</h4>
+                    ${item.options ? `<p class="cart-item-options">맵기: ${getSpicyText(item.options.spicy)}</p>` : ''}
+                    <div class="cart-item-footer">
+                        <div class="cart-quantity-controls">
+                            <button class="quantity-btn small" onclick="changeCartItemQuantity('${item.id}', -1)">-</button>
+                            <span class="quantity-display">${item.quantity}</span>
+                            <button class="quantity-btn small" onclick="changeCartItemQuantity('${item.id}', 1)">+</button>
+                        </div>
+                        <span class="cart-item-price">${Utils.formatPrice(item.price * item.quantity)}</span>
+                    </div>
+                </div>
+                <button class="cart-item-remove" onclick="removeCartItem('${item.id}')" aria-label="삭제">×</button>
+            `;
+            return cartItem;
+        }
+
+        function changeCartItemQuantity(itemId, delta) {
+            const item = cart.find(item => item.id === itemId);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) {
+                    removeCartItem(itemId);
+                } else {
+                    updateCartSummary();
+                    saveCartToSession();
+                    showCartModal(); // 모달 갱신
+                }
+            }
+        }
+
+        function removeCartItem(itemId) {
+            cart = cart.filter(item => item.id !== itemId);
+            updateCartSummary();
+            saveCartToSession();
+
+            if (cart.length === 0) {
+                hideAllModals();
+            } else {
+                showCartModal(); // 모달 갱신
+            }
+        }
+
+        function getSpicyText(spicy) {
+            const spicyMap = {
+                mild: '순한맛',
+                medium: '보통',
+                hot: '매운맛'
+            };
+            return spicyMap[spicy] || '순한맛';
+        }
+
+        function hideAllModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.add('hidden');
+            });
+            document.body.style.overflow = 'auto';
+        }
+
+        function proceedToOrder() {
+            if (cart.length === 0) {
+                Utils.showToast('장바구니가 비어있습니다.', 'warning');
+                return;
+            }
+
+            // 주문 정보를 세션에 저장
+            Utils.session.set('currentOrder', {
+                restaurant: currentRestaurant,
+                items: cart,
+                timestamp: Date.now()
+            });
+
+            // 주문 결제 페이지로 이동
+            Utils.navigateTo('05-주문결제');
+        }
+
+        function saveCartToSession() {
+            Utils.session.set(`cart_${currentRestaurant.id}`, cart);
+        }
+
+        function loadExistingCart() {
+            const existingCart = Utils.session.get(`cart_${currentRestaurant.id}`);
+            if (existingCart && Array.isArray(existingCart)) {
+                cart = existingCart;
+                updateCartSummary();
+            }
+        }
+
+        // 전역 함수 (인라인 이벤트에서 호출)
+        window.changeCartItemQuantity = changeCartItemQuantity;
+        window.removeCartItem = removeCartItem;
+    </script>
+
+    <style>
+        /* 메뉴 선택 페이지 전용 스타일 */
+        .category-tabs {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            position: sticky;
+            top: 60px;
+            z-index: 999;
+        }
+
+        .tabs-container {
+            display: flex;
+            overflow-x: auto;
+            padding: var(--space-2) 0;
+            gap: var(--space-2);
+        }
+
+        .tab-item {
+            flex-shrink: 0;
+            padding: var(--space-2) var(--space-4);
+            border: none;
+            background: var(--gray-100);
+            color: var(--gray-600);
+            border-radius: var(--radius-xl);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-item.active {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+
+        .menu-section {
+            padding: var(--space-4) 0 120px 0;
+        }
+
+        .menu-category {
+            margin-bottom: var(--space-8);
+        }
+
+        .category-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-4);
+            padding-bottom: var(--space-2);
+            border-bottom: 2px solid var(--primary-blue);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-4);
+        }
+
+        .menu-item {
+            display: flex;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-1px);
+        }
+
+        .menu-item.sold-out {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .menu-image-container {
+            position: relative;
+            width: 120px;
+            height: 100px;
+            flex-shrink: 0;
+        }
+
+        .menu-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .menu-badge {
+            position: absolute;
+            top: var(--space-2);
+            left: var(--space-2);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .menu-badge.popular {
+            background: var(--food-orange);
+        }
+
+        .menu-badge.sold-out {
+            background: var(--gray-500);
+        }
+
+        .menu-info {
+            flex: 1;
+            padding: var(--space-4);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .menu-description {
+            color: var(--gray-600);
+            font-size: 12px;
+            line-height: 1.4;
+            margin-bottom: var(--space-2);
+        }
+
+        .menu-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .menu-price {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .add-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            border: none;
+            background: var(--primary-blue);
+            color: var(--white);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background: var(--primary-blue-dark);
+            transform: scale(1.1);
+        }
+
+        /* 장바구니 요약바 */
+        .cart-summary {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border-top: 1px solid var(--gray-200);
+            padding: var(--space-4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform: translateY(100%);
+        }
+
+        .cart-summary.active {
+            transform: translateY(0);
+        }
+
+        .cart-info {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+        }
+
+        .cart-count {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .cart-total {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .cart-order-btn {
+            min-width: 120px;
+        }
+
+        /* 메뉴 상세 모달 */
+        .menu-detail {
+            text-align: left;
+        }
+
+        .menu-detail-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-4);
+        }
+
+        .menu-detail-info {
+            margin-bottom: var(--space-6);
+        }
+
+        .menu-detail-info h3 {
+            margin-bottom: var(--space-2);
+        }
+
+        .menu-price-section {
+            margin-top: var(--space-3);
+        }
+
+        .menu-price-large {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .menu-options {
+            margin-bottom: var(--space-6);
+            padding-top: var(--space-4);
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .option-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: var(--space-3);
+            color: var(--gray-900);
+        }
+
+        .option-group {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .option-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-3);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-item:has(input:checked) {
+            border-color: var(--primary-blue);
+            background: var(--primary-blue-light);
+            color: var(--primary-blue);
+        }
+
+        .option-item input {
+            display: none;
+        }
+
+        .quantity-section {
+            margin-bottom: var(--space-6);
+            padding-top: var(--space-4);
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .quantity-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: var(--space-3);
+            color: var(--gray-900);
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-4);
+        }
+
+        .quantity-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            border: 2px solid var(--primary-blue);
+            background: var(--white);
+            color: var(--primary-blue);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .quantity-btn:hover {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+
+        .quantity-btn.small {
+            width: 28px;
+            height: 28px;
+            font-size: 14px;
+        }
+
+        .quantity-display {
+            font-size: 18px;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .modal-actions {
+            margin-top: var(--space-6);
+        }
+
+        #addToCartBtn {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 장바구니 상세 모달 */
+        .cart-items {
+            max-height: 60vh;
+            overflow-y: auto;
+            margin-bottom: var(--space-4);
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-3);
+        }
+
+        .cart-item-image {
+            width: 60px;
+            height: 45px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .cart-item-options {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-bottom: var(--space-2);
+        }
+
+        .cart-item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .cart-item-price {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .cart-item-remove {
+            width: 24px;
+            height: 24px;
+            border-radius: var(--radius-full);
+            border: none;
+            background: var(--error-red);
+            color: var(--white);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .cart-total-section {
+            padding: var(--space-4);
+            background: var(--gray-50);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-4);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        /* 태블릿 이상에서 그리드 레이아웃 */
+        @media (min-width: 768px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .menu-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</body>
+</html>
