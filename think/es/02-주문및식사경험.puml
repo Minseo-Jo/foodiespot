@@ -1,0 +1,64 @@
+@startuml 02-주문및식사경험
+!theme mono
+
+title 02. 주문및식사경험 - 이벤트스토밍 플로우
+
+actor "일반사용자" as User
+actor "식당운영자" as Restaurant
+participant "주문관리시스템" as OrderSystem
+participant "PG시스템" as PaymentGateway
+participant "배달앱API" as DeliveryAPI
+
+== 주문 프로세스 ==
+
+User -> DeliveryAPI : **커맨드**: 메뉴조회하기\n**데이터**: {식당ID, 조회시간}
+DeliveryAPI --> User : **이벤트**: 메뉴정보제공됨\n**데이터**: {메뉴목록, 실시간가격, 재고상태, 예상조리시간}
+
+User -> OrderSystem : **커맨드**: 주문하기\n**데이터**: {식당ID, 메뉴ID목록, 수량, 총금액, 주문시간}
+activate OrderSystem
+
+OrderSystem -> PaymentGateway : 결제 처리 요청
+PaymentGateway --> OrderSystem : 결제 완료 확인
+OrderSystem --> User : **이벤트**: 주문완료됨\n**데이터**: {주문상세내역, 총금액, 예상대기시간, 주문번호}
+
+OrderSystem -> Restaurant : 주문 접수 알림
+Restaurant --> OrderSystem : 주문 확인 및 조리 시작
+
+== 대기 및 픽업 프로세스 ==
+
+Restaurant -> OrderSystem : **커맨드**: 조리상태업데이트하기\n**데이터**: {주문ID, 조리단계, 예상완료시간}
+OrderSystem --> User : **이벤트**: 조리상태업데이트됨\n**데이터**: {현재조리단계, 남은대기시간, 픽업가능예정시간}
+
+User -> Restaurant : 식당 도착 및 픽업
+Restaurant --> User : 음식 제공
+
+User -> User : **커맨드**: 식사완료하기\n**데이터**: {주문ID, 실제식사시간, 대기시간}
+User --> User : **이벤트**: 식사경험완료됨\n**데이터**: {실제소요시간, 서비스품질, 음식품질, 전반적경험}
+
+== 정책 및 규칙 ==
+
+note over OrderSystem
+**실시간업데이트정책**:
+영업시간, 대기시간 정보는
+30분마다 갱신
+
+**주문취소정책**:
+조리 시작 전까지만
+주문 취소 가능
+end note
+
+note over PaymentGateway
+**결제검증정책**:
+실제 결제 정보를 통한
+소비 금액 검증으로
+가성비 평가 정확도 향상
+end note
+
+== 외부 시스템 연동 ==
+
+OrderSystem -> DeliveryAPI : 실시간 대기시간 업데이트
+DeliveryAPI --> OrderSystem : 대기시간 정보 동기화
+
+deactivate OrderSystem
+
+@enduml

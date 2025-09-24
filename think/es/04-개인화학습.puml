@@ -1,0 +1,90 @@
+@startuml 04-개인화학습
+!theme mono
+
+title 04. 개인화학습 - 이벤트스토밍 플로우
+
+actor "관리자" as Admin
+participant "학습시스템" as LearningSystem
+participant "개인화추천엔진" as RecommendEngine
+participant "데이터분석시스템" as DataAnalytics
+participant "모델관리시스템" as ModelManager
+
+== 개인 선호도 분석 ==
+
+LearningSystem -> LearningSystem : **커맨드**: 선호도분석하기\n**데이터**: {사용자ID, 과거평가이력, 행동패턴데이터}
+activate LearningSystem
+
+LearningSystem -> DataAnalytics : 사용자 행동 패턴 분석 요청
+DataAnalytics -> DataAnalytics : 과거 평가 데이터 수집 및 분석
+DataAnalytics --> LearningSystem : **이벤트**: 개인선호도업데이트됨\n**데이터**: {변경된선호도항목, 변경정도, 학습데이터근거}
+
+== 과거 만족도 분석 ==
+
+LearningSystem -> DataAnalytics : **커맨드**: 과거데이터분석하기\n**데이터**: {사용자ID, 기간설정, 분석대상항목}
+DataAnalytics -> DataAnalytics : 시계열 만족도 트렌드 분석
+DataAnalytics -> DataAnalytics : 이상치 및 패턴 변화 탐지
+DataAnalytics --> LearningSystem : **이벤트**: 과거만족도분석됨\n**데이터**: {분석기간, 만족도트렌드, 패턴변화, 이상치탐지}
+
+== 개인 가성비 기준 정립 ==
+
+LearningSystem -> LearningSystem : **커맨드**: 개인기준수립하기\n**데이터**: {분석결과, 선호도프로필, 가중치설정}
+LearningSystem -> LearningSystem : 개인별 가중치 계산
+LearningSystem -> LearningSystem : 기준선 임계값 설정
+LearningSystem --> LearningSystem : **이벤트**: 개인가성비기준정립됨\n**데이터**: {새로운기준, 기존기준과차이점, 적용범위}
+
+== 개인 모델 학습 ==
+
+LearningSystem -> ModelManager : **커맨드**: 모델재학습하기\n**데이터**: {학습데이터셋, 모델파라미터, 검증데이터}
+activate ModelManager
+
+ModelManager -> ModelManager : 새로운 데이터로 모델 훈련
+ModelManager -> ModelManager : 모델 성능 검증
+ModelManager -> ModelManager : A/B 테스트를 통한 성능 비교
+ModelManager --> LearningSystem : **이벤트**: 개인모델학습됨\n**데이터**: {모델정확도, 학습데이터량, 검증결과, 모델버전}
+
+== 추천 엔진 업데이트 ==
+
+LearningSystem -> RecommendEngine : 업데이트된 개인 모델 배포
+RecommendEngine -> RecommendEngine : 새로운 개인화 모델 적용
+RecommendEngine --> LearningSystem : 모델 배포 완료 확인
+
+== 정책 및 규칙 ==
+
+note over LearningSystem
+**최소학습데이터정책**:
+개인 모델 생성을 위해
+최소 10회 이상의 식사 경험 데이터 필요
+
+**선호도변화감지정책**:
+최근 5회 평가가 기존 패턴과
+50% 이상 차이 시 모델 재학습 트리거
+end note
+
+note over ModelManager
+**개인기준갱신정책**:
+월 1회 자동으로
+개인 가성비 기준 재계산
+
+**모델성능기준정책**:
+정확도 85% 이상일 때만
+프로덕션 환경에 배포
+end note
+
+== 관리자 개입 프로세스 ==
+
+Admin -> ModelManager : 전체 모델 성능 모니터링
+ModelManager --> Admin : 성능 지표 및 이상 탐지 결과
+
+Admin -> LearningSystem : **커맨드**: 학습알고리즘최적화하기\n**데이터**: {최적화대상, 성능목표, 제약조건}
+LearningSystem -> LearningSystem : 하이퍼파라미터 튜닝
+LearningSystem --> Admin : 최적화 결과 보고
+
+== 외부 시스템 연동 ==
+
+DataAnalytics -> RecommendEngine : 실시간 사용자 행동 데이터 수집
+RecommendEngine --> DataAnalytics : 추천 결과 및 사용자 반응 데이터
+
+deactivate ModelManager
+deactivate LearningSystem
+
+@enduml

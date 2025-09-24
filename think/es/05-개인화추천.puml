@@ -1,0 +1,102 @@
+@startuml 05-개인화추천
+!theme mono
+
+title 05. 개인화추천 - 이벤트스토밍 플로우
+
+actor "일반사용자" as User
+actor "프리미엄사용자" as PremiumUser
+participant "개인화추천엔진" as RecommendEngine
+participant "가성비분석엔진" as AnalysisEngine
+participant "날씨API" as WeatherAPI
+participant "교통정보API" as TrafficAPI
+participant "SNS분석API" as SNSAPI
+
+== 추천 요청 프로세스 ==
+
+User -> RecommendEngine : **커맨드**: 추천요청하기\n**데이터**: {사용자ID, 현재위치, 예산범위, 시간대, 동행인수}
+activate RecommendEngine
+
+RecommendEngine --> RecommendEngine : **이벤트**: 추천요청됨\n**데이터**: {요청시간, 사용자컨텍스트, 추천조건, 우선순위}
+
+== 컨텍스트 정보 수집 ==
+
+RecommendEngine -> WeatherAPI : 현재 날씨 정보 조회
+WeatherAPI --> RecommendEngine : 날씨 데이터 (온도, 습도, 강수량)
+
+RecommendEngine -> TrafficAPI : 주변 교통 상황 조회
+TrafficAPI --> RecommendEngine : 교통 정보 (혼잡도, 이동시간)
+
+RecommendEngine -> SNSAPI : 실시간 트렌드 분석
+SNSAPI --> RecommendEngine : 인기 메뉴 및 핫플레이스 정보
+
+== 개인화 추천 생성 ==
+
+RecommendEngine -> AnalysisEngine : **커맨드**: 개인화추천계산하기\n**데이터**: {개인모델, 컨텍스트정보, 후보식당목록, 실시간데이터}
+activate AnalysisEngine
+
+AnalysisEngine -> AnalysisEngine : 개인 가성비 기준 적용
+AnalysisEngine -> AnalysisEngine : 상황별 가중치 조정
+AnalysisEngine -> AnalysisEngine : 협업 필터링 적용
+AnalysisEngine -> AnalysisEngine : 다양성 보장 로직 적용
+
+AnalysisEngine --> RecommendEngine : **이벤트**: 개인화추천생성됨\n**데이터**: {추천식당목록, 개인화점수, 추천이유, 예상만족도}
+
+== 추천 결과 제공 ==
+
+RecommendEngine -> RecommendEngine : **커맨드**: 추천결과반환하기\n**데이터**: {추천목록, 랭킹순서, 상세정보, 실시간상태}
+
+alt 일반사용자
+    RecommendEngine --> User : **이벤트**: 추천결과제공됨\n**데이터**: {기본추천목록(5개), 간단한추천이유, 가성비점수}
+else 프리미엄사용자
+    RecommendEngine --> PremiumUser : **이벤트**: 추천결과제공됨\n**데이터**: {확장추천목록(15개), 상세분석결과, 개인화인사이트, 예약링크}
+end
+
+== 사용자 피드백 수집 ==
+
+User -> RecommendEngine : 추천 결과에 대한 만족도 피드백
+RecommendEngine -> RecommendEngine : 피드백 데이터 저장
+RecommendEngine -> AnalysisEngine : 추천 정확도 개선을 위한 학습 데이터 제공
+
+== 정책 및 규칙 ==
+
+note over RecommendEngine
+**다양성보장정책**:
+추천 목록에서 동일 카테고리 음식점은
+최대 30% 이하로 제한
+
+**거리기반필터정책**:
+사용자 위치에서 3km 이내 식당만
+기본 추천 대상으로 설정
+end note
+
+note over AnalysisEngine
+**실시간반영정책**:
+날씨, 교통, 트렌드 정보를
+실시간으로 반영하여 추천 점수 조정
+
+**개인화정확도정책**:
+개인 모델 정확도가 85% 이상일 때만
+개인화 추천 제공, 그 외에는 일반 추천
+end note
+
+== A/B 테스트 및 최적화 ==
+
+RecommendEngine -> RecommendEngine : A/B 테스트 그룹 분할
+RecommendEngine -> RecommendEngine : 다양한 추천 알고리즘 적용
+RecommendEngine -> RecommendEngine : 성과 지표 측정 (클릭률, 방문률, 만족도)
+
+== 외부 시스템 연동 ==
+
+RecommendEngine -> WeatherAPI : 날씨가 음식 선택에 미치는 영향 분석
+WeatherAPI --> RecommendEngine : 날씨별 선호 음식 패턴
+
+RecommendEngine -> SNSAPI : 실시간 소셜 트렌드 반영
+SNSAPI --> RecommendEngine : 화제의 메뉴 및 식당 정보
+
+RecommendEngine -> TrafficAPI : 접근성 기반 추천 순위 조정
+TrafficAPI --> RecommendEngine : 실시간 이동시간 및 혼잡도
+
+deactivate AnalysisEngine
+deactivate RecommendEngine
+
+@enduml

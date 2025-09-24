@@ -1,0 +1,53 @@
+@startuml 01-식당탐색및선택
+!theme mono
+
+title 01. 식당탐색및선택 - 이벤트스토밍 플로우
+
+actor "일반사용자" as User
+participant "가성비분석엔진" as AnalysisEngine
+participant "개인화추천엔진" as RecommendEngine
+participant "네이버플레이스API" as NaverAPI
+participant "카카오맵API" as KakaoAPI
+
+== 이벤트스토밍 단계 ==
+
+User -> User : **커맨드**: 식당검색하기\n**데이터**: {사용자위치, 검색키워드, 반경범위, 카테고리}
+activate User
+
+User -> NaverAPI : 위치기반 식당 정보 요청
+NaverAPI --> User : **이벤트**: 식당검색됨\n**데이터**: {검색결과목록, 검색조건, 결과개수, 검색시간, 사용자위치}
+
+User -> RecommendEngine : **커맨드**: 개인화추천요청하기\n**데이터**: {사용자ID, 검색결과, 개인선호도}
+RecommendEngine -> AnalysisEngine : 가성비 기반 필터링 요청
+AnalysisEngine --> RecommendEngine : 가성비 분석 결과
+RecommendEngine --> User : **이벤트**: 개인화추천생성됨\n**데이터**: {추천식당목록, 추천이유, 예상가성비점수}
+
+User -> User : **커맨드**: 식당선택하기\n**데이터**: {식당ID, 사용자ID, 선택시간}
+User --> User : **이벤트**: 식당선택됨\n**데이터**: {선택된식당정보, 선택사유, 선택시간, 추천여부}
+
+== 정책 및 규칙 ==
+
+note over RecommendEngine
+**거리기반필터정책**:
+사용자 위치에서 3km 이내 식당만
+기본 추천 대상으로 설정
+
+**다양성보장정책**:
+추천 목록에서 동일 카테고리 음식점은
+최대 30% 이하로 제한
+end note
+
+note over AnalysisEngine
+**신뢰도검증정책**:
+동일 사용자의 연속 5회 이상
+동일 평가 시 신뢰도 검증 실행
+end note
+
+== 외부 시스템 연동 ==
+
+User -> KakaoAPI : 선택된 식당까지의 거리 및 경로 조회
+KakaoAPI --> User : **이벤트**: 경로정보제공됨\n**데이터**: {예상소요시간, 교통수단별경로, 실시간교통상황}
+
+deactivate User
+
+@enduml

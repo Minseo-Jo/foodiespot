@@ -1,0 +1,78 @@
+@startuml 03-가성비평가
+!theme mono
+
+title 03. 가성비평가 - 이벤트스토밍 플로우
+
+actor "일반사용자" as User
+participant "가성비분석엔진" as AnalysisEngine
+participant "이미지분석API" as ImageAPI
+participant "자연어처리API" as NLPAPI
+participant "평가관리시스템" as EvaluationSystem
+
+== 가성비 평가 프로세스 ==
+
+User -> User : **커맨드**: 만족도평가하기\n**데이터**: {주문ID, 사용자ID, 전체만족도점수}
+activate User
+
+User -> EvaluationSystem : **커맨드**: 가격정보입력하기\n**데이터**: {메뉴ID, 실제결제금액, 할인정보, 추가비용}
+EvaluationSystem --> EvaluationSystem : **이벤트**: 가격정보수집됨\n**데이터**: {실제결제금액, 메뉴가격, 할인혜택, 추가비용내역}
+
+User -> ImageAPI : 음식 사진 업로드
+ImageAPI -> ImageAPI : **커맨드**: 양정보측정하기\n**데이터**: {메뉴ID, 예상양, 실제양, 포만감점수}
+ImageAPI --> EvaluationSystem : **이벤트**: 양정보측정됨\n**데이터**: {실제제공량, 예상량대비비율, 포만감수준, 양만족도}
+
+User -> EvaluationSystem : **커맨드**: 맛평가하기\n**데이터**: {메뉴ID, 맛점수, 맛카테고리, 개인선호도}
+EvaluationSystem --> EvaluationSystem : **이벤트**: 맛평가점수입력됨\n**데이터**: {맛점수, 맛카테고리별점수, 개인선호도일치도}
+
+User -> EvaluationSystem : **커맨드**: 서비스평가하기\n**데이터**: {식당ID, 서비스점수, 친절도, 청결도, 분위기}
+EvaluationSystem --> EvaluationSystem : **이벤트**: 서비스평가점수입력됨\n**데이터**: {서비스종합점수, 항목별점수, 서비스특이사항}
+
+User -> EvaluationSystem : 텍스트 리뷰 작성
+EvaluationSystem -> NLPAPI : 리뷰 감정 분석 요청
+NLPAPI --> EvaluationSystem : 감정 분석 결과
+
+== 가성비 지수 계산 ==
+
+EvaluationSystem -> AnalysisEngine : **커맨드**: 가성비지수계산하기\n**데이터**: {가격데이터, 양데이터, 맛데이터, 서비스데이터, 개인가중치}
+activate AnalysisEngine
+
+AnalysisEngine -> AnalysisEngine : 개인별 가중치 적용
+AnalysisEngine -> AnalysisEngine : 동일 카테고리 평균과 비교
+AnalysisEngine --> EvaluationSystem : **이벤트**: 가성비지수계산됨\n**데이터**: {최종가성비점수, 항목별기여도, 계산근거, 동일카테고리평균비교}
+
+EvaluationSystem --> User : **이벤트**: 만족도평가됨\n**데이터**: {평가점수, 평가상세항목, 재방문의향, 추천의향}
+
+== 정책 및 규칙 ==
+
+note over EvaluationSystem
+**평가데이터최소요구정책**:
+가성비 지수 계산을 위해
+최소 3개 항목(가격, 양, 맛) 평가 필수
+
+**신뢰도검증정책**:
+동일 사용자의 연속 5회 이상
+동일 평가 시 신뢰도 검증 실행
+end note
+
+note over AnalysisEngine
+**데이터유효성정책**:
+7일 이상 된 가격 정보는
+가중치 감소 적용
+
+**개인화계산정책**:
+사용자별 선호도 가중치를
+실시간으로 반영하여 계산
+end note
+
+== 외부 시스템 연동 ==
+
+AnalysisEngine -> ImageAPI : 음식 사진에서 양 추정
+ImageAPI --> AnalysisEngine : 시각적 양 분석 결과
+
+AnalysisEngine -> NLPAPI : 리뷰 텍스트 키워드 추출
+NLPAPI --> AnalysisEngine : 핵심 키워드 및 감정 점수
+
+deactivate AnalysisEngine
+deactivate User
+
+@enduml
