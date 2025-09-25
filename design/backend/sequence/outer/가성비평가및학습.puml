@@ -1,0 +1,211 @@
+@startuml 가성비평가및학습
+!theme mono
+
+title 가성비 평가 및 개인화 학습 플로우
+
+actor "사용자" as User
+participant "Frontend\n(Mobile/Web)" as Frontend
+participant "API Gateway" as Gateway
+participant "Value Assessment\nService" as ValueService
+participant "Personalization\nService" as PersonService
+participant "Event Bus\n(Kafka)" as EventBus
+participant "Redis Cache" as Cache
+
+== 1. 식사 완료 기록 ==
+User -> Frontend: 식사 완료 버튼 클릭
+note right of User
+UFR-ORD-040
+식사경험완료
+end note
+
+Frontend -> Gateway: POST /api/meals/complete
+activate Gateway
+
+Gateway -> ValueService: 식사 완료 기록
+activate ValueService
+
+ValueService -> Cache: 사용자 식사 이력 조회
+Cache --> ValueService: 기존 이력 반환
+
+ValueService -> ValueService: 식사 완료 상태 업데이트
+ValueService --> Gateway: 완료 확인
+deactivate ValueService
+
+Gateway --> Frontend: 완료 응답
+deactivate Gateway
+
+Frontend --> User: 평가 화면 표시
+
+== 2. 가성비 4요소 평가 ==
+User -> Frontend: 평가 입력\n(가격/양/맛/서비스)
+note right of User
+UFR-VAL-010
+식사경험평가
+- 가격 만족도 (1-5점)
+- 양 만족도 (1-5점) 
+- 맛 만족도 (1-5점)
+- 서비스 만족도 (1-5점)
+end note
+
+Frontend -> Gateway: POST /api/evaluations
+activate Gateway
+
+Gateway -> ValueService: 평가 데이터 저장
+activate ValueService
+
+ValueService -> ValueService: 평가 데이터 검증
+note right of ValueService
+- 필수 항목 확인
+- 점수 범위 검증 (1-5)
+- 중복 평가 체크
+end note
+
+alt 평가 데이터 유효
+    ValueService -> Cache: 평가 데이터 저장
+    ValueService -> EventBus: 평가 완료 이벤트 발행
+    note right of EventBus
+    Event: evaluation.completed
+    {
+      userId: string,
+      restaurantId: string,
+      ratings: {
+        price: number,
+        portion: number,
+        taste: number,
+        service: number
+      },
+      timestamp: datetime
+    }
+    end note
+else 평가 데이터 무효
+    ValueService --> Gateway: 검증 오류 반환
+    Gateway --> Frontend: 오류 메시지
+    Frontend --> User: 재입력 요청
+end
+
+== 3. 개인화 가성비 지수 계산 ==
+EventBus -> PersonService: 평가 완료 이벤트 수신
+activate PersonService
+
+PersonService -> Cache: 사용자 선호도 가중치 조회
+Cache --> PersonService: 개인 가중치 반환
+note right of PersonService
+기본 가중치:
+- 가격: 25%
+- 양: 25% 
+- 맛: 30%
+- 서비스: 20%
+end note
+
+PersonService -> PersonService: 개인화 가성비 지수 계산
+note right of PersonService
+가성비 지수 = 
+(가격평가 × 가격가중치) +
+(양평가 × 양가중치) +
+(맛평가 × 맛가중치) +
+(서비스평가 × 서비스가중치)
+end note
+
+PersonService -> Cache: 계산된 가성비 지수 저장
+PersonService -> EventBus: 가성비 지수 계산 완료 이벤트
+note right of EventBus
+Event: value-index.calculated
+{
+  userId: string,
+  restaurantId: string,
+  valueIndex: number,
+  individualWeights: object
+}
+end note
+
+== 4. 가성비 지수 조회 ==
+User -> Frontend: 가성비 지수 확인
+note right of User
+UFR-VAL-020
+가성비지수확인
+end note
+
+Frontend -> Gateway: GET /api/restaurants/{id}/value-index
+activate Gateway
+
+Gateway -> ValueService: 가성비 지수 요청
+activate ValueService
+
+ValueService -> Cache: 캐시된 가성비 지수 조회
+Cache --> ValueService: 가성비 지수 반환
+
+ValueService --> Gateway: 가성비 지수 응답
+deactivate ValueService
+
+Gateway --> Frontend: 가성비 지수 데이터
+deactivate Gateway
+
+Frontend --> User: 가성비 지수 표시
+
+== 5. AI 개인선호도 학습 (비동기) ==
+EventBus -> PersonService: 가성비 지수 계산 완료 이벤트 수신
+note right of PersonService
+UFR-PERS-010
+개인선호도학습
+end note
+
+PersonService ->> PersonService: AI 모델 학습 작업 시작 (비동기)
+note right of PersonService
+비동기 처리:
+- 사용자 평가 패턴 분석
+- 선호도 가중치 재계산
+- 추천 정확도 개선
+end note
+
+PersonService -> Cache: 사용자 평가 이력 조회
+Cache --> PersonService: 전체 평가 데이터
+
+PersonService -> PersonService: 개인 선호도 패턴 분석
+note right of PersonService
+머신러닝 분석:
+- 평가 트렌드 분석
+- 선호 음식 카테고리 식별
+- 가격 민감도 계산
+- 시간대별 선호도 분석
+end note
+
+PersonService -> PersonService: 가중치 업데이트
+PersonService -> Cache: 갱신된 가중치 저장
+
+PersonService -> EventBus: 학습 완료 이벤트 발행
+note right of EventBus
+Event: personalization.updated
+{
+  userId: string,
+  updatedWeights: object,
+  learningMetrics: object
+}
+end note
+
+== 6. 학습 결과 캐시 갱신 ==
+EventBus -> ValueService: 개인화 학습 완료 이벤트 수신
+activate ValueService
+
+ValueService -> Cache: 관련 가성비 지수 캐시 무효화
+note right of Cache
+캐시 갱신 대상:
+- 사용자별 가성비 지수
+- 맛집 추천 리스트
+- 개인화 필터 결과
+end note
+
+ValueService -> Cache: 새로운 가중치 기반 지수 재계산
+Cache --> ValueService: 캐시 갱신 완료
+
+ValueService --> EventBus: 캐시 갱신 완료 응답
+deactivate ValueService
+
+note over User, Cache
+전체 플로우 완료:
+1. 식사 완료 → 평가 입력
+2. 실시간 가성비 지수 계산
+3. 비동기 AI 학습
+4. 개인화 추천 정확도 향상
+end note
+
+@enduml

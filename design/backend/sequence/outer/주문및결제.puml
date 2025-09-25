@@ -1,0 +1,236 @@
+@startuml 주문및결제
+!theme mono
+title 주문 및 결제 처리 외부 시퀀스
+
+' 참여자 정의
+participant "모바일앱\n/웹" as Client
+participant "API Gateway" as Gateway
+participant "Order Management\nService" as OrderService
+participant "Redis Cache" as Cache
+participant "결제 게이트웨이\n(외부)" as PaymentGW
+participant "이벤트 버스\n(Kafka)" as EventBus
+participant "Restaurant Search\nService" as RestaurantService
+participant "Order Database" as OrderDB
+participant "알림 서비스\n(외부)" as NotificationService
+
+' 1. 메뉴 조회 플로우 (UFR-ORD-010)
+note over Client, NotificationService : **1. 실시간 메뉴 및 가격 조회 (UFR-ORD-010)**
+
+Client -> Gateway : GET /restaurants/{id}/menus
+activate Gateway
+
+Gateway -> OrderService : 메뉴 조회 요청
+activate OrderService
+
+' 캐시 먼저 확인
+OrderService -> Cache : 메뉴 데이터 조회\n(key: menu:{restaurant_id})
+activate Cache
+Cache --> OrderService : 캐시 데이터 또는 null
+deactivate Cache
+
+alt 캐시 미스인 경우
+    OrderService -> OrderDB : 메뉴 정보 DB 조회
+    activate OrderDB
+    OrderDB --> OrderService : 메뉴 목록 반환
+    deactivate OrderDB
+    
+    OrderService -> Cache : 메뉴 데이터 캐싱\n(TTL: 30분)
+    activate Cache
+    Cache --> OrderService : 캐싱 완료
+    deactivate Cache
+end
+
+OrderService --> Gateway : 메뉴 목록 응답\n(카테고리별, 가격, 품절상태)
+deactivate OrderService
+
+Gateway --> Client : 메뉴 정보 반환
+deactivate Gateway
+
+' 2. 주문 생성 및 결제 플로우 (UFR-ORD-020)
+note over Client, NotificationService : **2. 주문 생성 및 결제 처리 (UFR-ORD-020)**
+
+Client -> Gateway : POST /orders\n{메뉴선택, 수량, 결제정보}
+activate Gateway
+
+Gateway -> OrderService : 주문 생성 요청
+activate OrderService
+
+' 재고 확인 및 주문 생성
+OrderService -> Cache : 메뉴 재고 상태 확인
+activate Cache
+Cache --> OrderService : 재고 상태 반환
+deactivate Cache
+
+alt 재고 부족인 경우
+    OrderService --> Gateway : 400 Bad Request\n"선택한 메뉴가 품절입니다"
+    Gateway --> Client : 품절 오류 응답
+else 재고 충분한 경우
+    OrderService -> OrderDB : 주문 정보 저장\n(상태: PENDING)
+    activate OrderDB
+    OrderDB --> OrderService : 주문 생성 완료\n(주문번호 발급)
+    deactivate OrderDB
+
+    ' Circuit Breaker 패턴으로 결제 처리
+    note over OrderService, PaymentGW : **Circuit Breaker 패턴 적용**
+    
+    OrderService -> PaymentGW : 결제 요청\n(Circuit Breaker)
+    activate PaymentGW
+    
+    alt 결제 성공
+        PaymentGW --> OrderService : 결제 승인 응답
+        deactivate PaymentGW
+        
+        ' 주문 상태 업데이트
+        OrderService -> OrderDB : 주문 상태 변경\n(PENDING -> PAID)
+        activate OrderDB
+        OrderDB --> OrderService : 업데이트 완료
+        deactivate OrderDB
+        
+        ' 재고 차감
+        OrderService -> Cache : 재고 수량 차감 업데이트
+        activate Cache
+        Cache --> OrderService : 재고 업데이트 완료
+        deactivate Cache
+        
+        ' 주문 생성 이벤트 발행
+        OrderService -> EventBus : OrderCreated 이벤트\n{주문번호, 사용자ID, 식당ID}
+        activate EventBus
+        EventBus --> OrderService : 이벤트 발행 완료
+        deactivate EventBus
+        
+        OrderService --> Gateway : 주문 생성 성공\n{주문번호, 예상시간}
+        Gateway --> Client : 201 Created\n주문 완료 응답
+        
+    else 결제 실패 (Circuit Breaker Open)
+        PaymentGW --> OrderService : 결제 실패 또는 타임아웃
+        deactivate PaymentGW
+        
+        ' 주문 롤백 처리
+        OrderService -> OrderDB : 주문 상태 변경\n(PENDING -> FAILED)
+        activate OrderDB
+        OrderDB --> OrderService : 롤백 완료
+        deactivate OrderDB
+        
+        OrderService --> Gateway : 결제 실패 응답
+        Gateway --> Client : 400 Bad Request\n"결제 처리 실패"
+    end
+end
+
+deactivate OrderService
+deactivate Gateway
+
+' 3. 비동기 이벤트 처리
+note over EventBus, NotificationService : **3. 비동기 이벤트 기반 처리**
+
+' 주문 생성 이벤트 처리
+EventBus -> RestaurantService : OrderCreated 이벤트 구독
+activate RestaurantService
+
+RestaurantService -> Cache : 식당 주문량 통계 업데이트
+activate Cache
+Cache --> RestaurantService : 통계 업데이트 완료
+deactivate Cache
+
+deactivate RestaurantService
+
+' 알림 발송
+EventBus -> NotificationService : OrderCreated 이벤트 구독
+activate NotificationService
+
+NotificationService -> Client : 푸시 알림\n"주문이 접수되었습니다"
+
+deactivate NotificationService
+
+' 4. 주문 상태 실시간 추적 (UFR-ORD-030)
+note over Client, NotificationService : **4. 실시간 주문 상태 추적 (UFR-ORD-030)**
+
+Client -> Gateway : GET /orders/{orderId}/status
+activate Gateway
+
+Gateway -> OrderService : 주문 상태 조회
+activate OrderService
+
+OrderService -> Cache : 주문 상태 캐시 조회\n(key: order_status:{orderId})
+activate Cache
+Cache --> OrderService : 캐시된 상태 또는 null
+deactivate Cache
+
+alt 캐시 미스인 경우
+    OrderService -> OrderDB : DB에서 주문 상태 조회
+    activate OrderDB
+    OrderDB --> OrderService : 주문 상태 반환
+    deactivate OrderDB
+    
+    OrderService -> Cache : 주문 상태 캐싱\n(TTL: 5분)
+    activate Cache
+    Cache --> OrderService : 캐싱 완료
+    deactivate Cache
+end
+
+OrderService --> Gateway : 주문 상태 응답\n{상태, 예상완료시간, 진행단계}
+deactivate OrderService
+
+Gateway --> Client : 주문 상태 정보
+deactivate Gateway
+
+' 5. 주문 상태 변경 시 실시간 알림
+note over OrderService, NotificationService : **5. 상태 변경 실시간 알림**
+
+' 식당에서 주문 상태 변경 (예: 조리 시작)
+OrderService -> OrderDB : 주문 상태 변경\n(PAID -> COOKING)
+activate OrderDB
+OrderDB --> OrderService : 상태 변경 완료
+deactivate OrderDB
+
+' 캐시 무효화
+OrderService -> Cache : 주문 상태 캐시 삭제\n(key: order_status:{orderId})
+activate Cache
+Cache --> OrderService : 캐시 삭제 완료
+deactivate Cache
+
+' 상태 변경 이벤트 발행
+OrderService -> EventBus : OrderStatusChanged 이벤트\n{주문번호, 새상태, 예상시간}
+activate EventBus
+EventBus --> OrderService : 이벤트 발행 완료
+deactivate EventBus
+
+' 실시간 알림 처리
+EventBus -> NotificationService : OrderStatusChanged 이벤트 구독
+activate NotificationService
+
+NotificationService -> Client : 실시간 푸시 알림\n"주문이 조리 중입니다"
+
+deactivate NotificationService
+
+' 에러 처리 및 복구
+note over Client, NotificationService : **6. 오류 처리 및 복구 시나리오**
+
+alt Circuit Breaker가 Open 상태인 경우
+    Client -> Gateway : POST /orders (주문 시도)
+    activate Gateway
+    
+    Gateway -> OrderService : 주문 생성 요청
+    activate OrderService
+    
+    OrderService -> PaymentGW : 결제 요청 (Circuit Breaker Open)
+    activate PaymentGW
+    PaymentGW --> OrderService : 즉시 실패 응답\n(Circuit Breaker로 인한 Fast Fail)
+    deactivate PaymentGW
+    
+    OrderService --> Gateway : 서비스 일시 불가 응답
+    deactivate OrderService
+    
+    Gateway --> Client : 503 Service Unavailable\n"결제 서비스 일시 장애"
+    deactivate Gateway
+end
+
+note over Client, NotificationService : **주요 패턴 적용 요약**
+note over Client, NotificationService 
+1. **Cache-Aside**: 메뉴, 주문상태 캐싱으로 성능 최적화
+2. **Circuit Breaker**: 결제 게이트웨이 장애 시 빠른 실패
+3. **Event-Driven**: 주문 생성/상태변경 이벤트 기반 비동기 처리
+4. **Saga Pattern**: 결제 실패 시 주문 롤백으로 데이터 일관성 보장
+5. **CQRS**: 조회(캐시)와 명령(DB) 분리로 성능 향상
+end note
+
+@enduml
