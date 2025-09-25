@@ -83,12 +83,12 @@ graph TB
     PersonSvc --> PersonDB
     AdminSvc --> AdminDB
 
-    %% 이벤트 기반 비동기 통신
-    OrderSvc ->> EventBus
-    ValueSvc ->> EventBus
-    PersonSvc ->> EventBus
-    EventBus ->> RestaurantSvc
-    EventBus ->> PersonSvc
+    %% 이벤트 기반 비동기 통신 (점선 화살표 사용)
+    OrderSvc -.->|주문 이벤트| EventBus
+    ValueSvc -.->|리뷰/평가 이벤트| EventBus
+    PersonSvc -.->|모델/피드백 이벤트| EventBus
+    EventBus -.->|대기시간 업데이트| RestaurantSvc
+    EventBus -.->|추천/모델 업데이트| PersonSvc
 
     %% 외부 서비스 연동 (Circuit Breaker 적용)
     OrderSvc -.-> PaymentGW
