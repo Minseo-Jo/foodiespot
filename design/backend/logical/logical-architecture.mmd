@@ -1,0 +1,114 @@
+graph TB
+    %% 클라이언트 계층
+    subgraph "클라이언트 계층"
+        MobileApp[모바일 앱<br/>- 일반사용자<br/>- 식당운영자]
+        WebApp[웹 애플리케이션<br/>- 관리자 콘솔<br/>- 식당 관리]
+    end
+
+    %% API Gateway
+    subgraph "API Gateway 계층"
+        Gateway[API Gateway<br/>- JWT 인증/인가<br/>- 라우팅 & 로드밸런싱<br/>- Rate Limiting<br/>- 로깅 & 모니터링]
+    end
+
+    %% 마이크로서비스 계층
+    subgraph "마이크로서비스 계층"
+        subgraph "Restaurant Search"
+            RestaurantSvc[Restaurant Search Service<br/>- 식당 검색 & 필터링<br/>- 개인화 추천<br/>- 실시간 대기시간 관리<br/>- Cache-Aside 패턴]
+        end
+
+        subgraph "Order Management"
+            OrderSvc[Order Management Service<br/>- 메뉴 조회 & 주문 처리<br/>- 주문 상태 추적<br/>- Circuit Breaker 적용]
+        end
+
+        subgraph "Value Assessment"
+            ValueSvc[Value Assessment Service<br/>- 가성비 평가<br/>- 리뷰 관리<br/>- 평가 히스토리 분석<br/>- Cache-Aside 패턴]
+        end
+
+        subgraph "Personalization"
+            PersonSvc[Personalization Service<br/>- 개인화 학습<br/>- AI 추천 생성<br/>- 만족도 예측<br/>- Cache-Aside 패턴]
+        end
+
+        subgraph "Admin Management"
+            AdminSvc[Admin Management Service<br/>- 데이터 품질 관리<br/>- 시스템 모니터링<br/>- AI 모델 최적화]
+        end
+    end
+
+    %% 이벤트 버스
+    subgraph "이벤트 계층"
+        EventBus[Event Bus<br/>Apache Kafka<br/>- 주문 생성/완료 이벤트<br/>- 대기시간 업데이트<br/>- 리뷰 작성 이벤트<br/>- AI 모델 업데이트]
+    end
+
+    %% 캐시 계층
+    subgraph "캐시 계층"
+        Redis[Redis Cache<br/>- 식당 정보 캐싱<br/>- 검색 결과 캐싱<br/>- AI 추천 결과 캐싱<br/>- 개인화 데이터 캐싱]
+    end
+
+    %% 데이터베이스 계층
+    subgraph "데이터베이스 계층"
+        RestaurantDB[(Restaurant DB<br/>- 식당 정보<br/>- 메뉴 데이터<br/>- 대기시간 데이터)]
+        OrderDB[(Order DB<br/>- 주문 정보<br/>- 주문 상태)]
+        ValueDB[(Value DB<br/>- 평가 데이터<br/>- 가성비 점수)]
+        PersonDB[(Person DB<br/>- 사용자 선호도<br/>- AI 모델 데이터)]
+        AdminDB[(Admin DB<br/>- 시스템 메트릭<br/>- 관리 로그)]
+    end
+
+    %% 외부 서비스
+    subgraph "외부 서비스"
+        PaymentGW[결제 게이트웨이<br/>Circuit Breaker]
+        MapAPI[지도 API<br/>Circuit Breaker]
+        PushSvc[푸시 알림 서비스<br/>Circuit Breaker]
+        EmailSvc[이메일 서비스]
+    end
+
+    %% 클라이언트 → API Gateway 연결
+    MobileApp --> Gateway
+    WebApp --> Gateway
+
+    %% API Gateway → 마이크로서비스 연결 (동기)
+    Gateway --> RestaurantSvc
+    Gateway --> OrderSvc
+    Gateway --> ValueSvc
+    Gateway --> PersonSvc
+    Gateway --> AdminSvc
+
+    %% 마이크로서비스 → 캐시 연결 (Cache-Aside)
+    RestaurantSvc -.-> Redis
+    ValueSvc -.-> Redis
+    PersonSvc -.-> Redis
+
+    %% 마이크로서비스 → 데이터베이스 연결
+    RestaurantSvc --> RestaurantDB
+    OrderSvc --> OrderDB
+    ValueSvc --> ValueDB
+    PersonSvc --> PersonDB
+    AdminSvc --> AdminDB
+
+    %% 이벤트 기반 비동기 통신
+    OrderSvc ->> EventBus
+    ValueSvc ->> EventBus
+    PersonSvc ->> EventBus
+    EventBus ->> RestaurantSvc
+    EventBus ->> PersonSvc
+
+    %% 외부 서비스 연동 (Circuit Breaker 적용)
+    OrderSvc -.-> PaymentGW
+    RestaurantSvc -.-> MapAPI
+    OrderSvc -.-> PushSvc
+    AdminSvc -.-> EmailSvc
+
+    %% 스타일링
+    classDef client fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef gateway fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef service fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef cache fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef database fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef external fill:#f1f8e9,stroke:#689f38,stroke-width:2px
+    classDef event fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+
+    class MobileApp,WebApp client
+    class Gateway gateway
+    class RestaurantSvc,OrderSvc,ValueSvc,PersonSvc,AdminSvc service
+    class Redis cache
+    class RestaurantDB,OrderDB,ValueDB,PersonDB,AdminDB database
+    class PaymentGW,MapAPI,PushSvc,EmailSvc external
+    class EventBus event
